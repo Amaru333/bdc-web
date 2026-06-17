@@ -1,0 +1,15 @@
+---
+import { marked } from "marked";
+import MarkdownToken from "@components/common/MarkdownToken.astro";
+
+interface Props {
+  content: string;
+}
+
+const { content } = Astro.props;
+const tokens = marked.lexer(content);
+---
+
+{tokens.map((token) => (
+  <MarkdownToken token={token} />
+))}

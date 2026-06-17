@@ -4,7 +4,7 @@ dist
 .astro
 .env
 .env.*
-test-results
+!.env.example
 
 # apps/freshdesk
 Pipfile

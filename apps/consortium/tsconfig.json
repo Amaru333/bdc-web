@@ -5,7 +5,8 @@
     "paths": {
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"],
-      "@config/*": ["src/config/*"]
+      "@config/*": ["src/config/*"],
+      "@bdc/google-api": ["../../packages/google-api/src/index.ts"]
     }
   }
 }

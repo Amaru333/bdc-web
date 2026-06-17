@@ -8,10 +8,12 @@ interface Props {
 
 export async function getStaticPaths() {
   const members = await getCollection('members');
-  return members.map((member) => ({
-    params: { id: member.id },
-    props: { member },
-  }));
+  return members
+    .filter((member) => !member.data.hideFromDirectory)
+    .map((member) => ({
+      params: { id: member.id },
+      props: { member },
+    }));
 }
 
 const props = Astro.props as Partial<Props>;
@@ -20,7 +22,7 @@ const members = await getCollection('members');
 const member =
   memberFromProps ?? members.find((entry) => entry.id === Astro.params.id);
 
-if (!member) {
+if (!member || member.data.hideFromDirectory) {
   return Astro.redirect('/consortium-directory/');
 }
 

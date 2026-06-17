@@ -6,17 +6,25 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "clasp:pull:meeting-materials": "cd src/appscripts/bdc-meeting-materials && clasp pull",
+    "clasp:pull:member-form": "cd src/appscripts/bdc-member-form && clasp pull",
+    "clasp:push:meeting-materials": "cd src/appscripts/bdc-meeting-materials && clasp push",
+    "clasp:push:member-form": "cd src/appscripts/bdc-member-form && clasp push",
+    "clasp:push:all": "npm run clasp:push:meeting-materials && npm run clasp:push:member-form",
+    "clasp:pull:all": "npm run clasp:pull:meeting-materials && npm run clasp:pull:member-form"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.4",
     "@astrojs/node": "^10.1.4",
     "@astrojs/react": "^5.0.4",
+    "@bdc/google-api": "*",
     "@bdc/uswds-theme": "*",
     "@trussworks/react-uswds": "^11.0.0",
     "@uswds/uswds": "^3.13.0",
     "astro": "^6.2.2",
     "js-yaml": "^4.1.0",
+    "marked": "^18.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sass-embedded": "^1.83.0"
