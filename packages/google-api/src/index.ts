@@ -217,6 +217,49 @@ export async function resolveGoogleSheetTitleById(
   return title;
 }
 
+function columnIndexToLetter(index: number): string {
+  let result = "";
+  let n = index + 1;
+  while (n > 0) {
+    const rem = (n - 1) % 26;
+    result = String.fromCharCode(65 + rem) + result;
+    n = Math.floor((n - 1) / 26);
+  }
+  return result;
+}
+
+function buildSheetRangeA1(title: string, gridRange: GoogleSheetGridRange): string {
+  const escapedTitle = `'${title.replace(/'/g, "''")}'`;
+  const { startRowIndex, endRowIndex, startColumnIndex, endColumnIndex } = gridRange;
+
+  const hasBounds =
+    startRowIndex !== undefined ||
+    endRowIndex !== undefined ||
+    startColumnIndex !== undefined ||
+    endColumnIndex !== undefined;
+
+  if (!hasBounds) {
+    return escapedTitle;
+  }
+
+  const startCol = columnIndexToLetter(startColumnIndex ?? 0);
+  const startRow = (startRowIndex ?? 0) + 1;
+
+  if (endRowIndex === undefined && endColumnIndex === undefined) {
+    return `${escapedTitle}!${startCol}${startRow}`;
+  }
+
+  const endCol =
+    endColumnIndex !== undefined ? columnIndexToLetter(endColumnIndex - 1) : startCol;
+  const endRow = endRowIndex !== undefined ? endRowIndex : undefined;
+
+  if (endRow !== undefined) {
+    return `${escapedTitle}!${startCol}${startRow}:${endCol}${endRow}`;
+  }
+
+  return `${escapedTitle}!${startCol}${startRow}:${endCol}`;
+}
+
 export type GoogleSheetGridRange = {
   /** 0-based, inclusive. Omit with endRowIndex to read through the last row. */
   startRowIndex?: number;
@@ -233,7 +276,7 @@ export type FetchGoogleSheetValuesBySheetIdOptions = GoogleCredentialOptions &
 
 /**
  * Fetch cell values from a sheet tab by its stable ID (`gid` / `sheetId`) instead of tab name.
- * Uses the Sheets API batchGetByDataFilter endpoint so renames do not break reads.
+ * Resolves the current tab title at runtime, then reads via values.get (readonly scope).
  */
 export async function fetchGoogleSheetValuesBySheetId(
   spreadsheetId: string,
@@ -248,39 +291,15 @@ export async function fetchGoogleSheetValuesBySheetId(
     ...credentialOptions
   } = options;
 
-  const gridRange: GoogleSheetGridRange & { sheetId: number } = { sheetId };
-  if (startRowIndex !== undefined) gridRange.startRowIndex = startRowIndex;
-  if (endRowIndex !== undefined) gridRange.endRowIndex = endRowIndex;
-  if (startColumnIndex !== undefined) gridRange.startColumnIndex = startColumnIndex;
-  if (endColumnIndex !== undefined) gridRange.endColumnIndex = endColumnIndex;
-
-  const token = await getAccessToken([SHEETS_READ_SCOPE], credentialOptions);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values:batchGetByDataFilter`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      dataFilters: [{ gridRange }],
-      majorDimension: "ROWS",
-    }),
+  const title = await resolveGoogleSheetTitleById(spreadsheetId, sheetId, credentialOptions);
+  const range = buildSheetRangeA1(title, {
+    startRowIndex,
+    endRowIndex,
+    startColumnIndex,
+    endColumnIndex,
   });
 
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(
-      `Failed to fetch Google Sheet values by sheet id ${sheetId} in ${spreadsheetId}: ${response.status} ${response.statusText}. ${body}`,
-    );
-  }
-
-  const data = (await response.json()) as {
-    valueRanges?: Array<{ valueRange?: { values?: string[][] } }>;
-  };
-
-  return data.valueRanges?.[0]?.valueRange?.values ?? [];
+  return fetchGoogleSheetValues(spreadsheetId, range, credentialOptions);
 }
 
 export type UpdateGoogleSheetValuesOptions = GoogleCredentialOptions & {

@@ -1,7 +1,7 @@
-import { fetchGoogleSheetValues, hasGoogleCredentials } from "@bdc/google-api";
+import { fetchGoogleSheetValuesBySheetId, hasGoogleCredentials } from "@bdc/google-api";
 
 export const MEMBERS_SPREADSHEET_ID = "1KyhYG8deCZp1dYjYkkQCV96I6wt5xjpMGLW6dKSsmKc";
-export const MEMBERS_SHEET_NAME = "Members";
+export const MEMBERS_SHEET_ID = 1718183097;
 
 export type MemberRecord = {
   id: string;
@@ -118,10 +118,11 @@ export async function loadMembersFromSheet(): Promise<MemberRecord[]> {
   }
 
   try {
-    const rows = await fetchGoogleSheetValues(
-      MEMBERS_SPREADSHEET_ID,
-      `'${MEMBERS_SHEET_NAME}'!A2:L`,
-    );
+    const rows = await fetchGoogleSheetValuesBySheetId(MEMBERS_SPREADSHEET_ID, MEMBERS_SHEET_ID, {
+      startRowIndex: 1, // A2 — skip header row
+      startColumnIndex: 0, // column A
+      endColumnIndex: 12, // through column L
+    });
 
     return rows
       .map((row, index) => sheetRowToMember(row, index))
