@@ -98,18 +98,6 @@ const bams = defineCollection({
   }),
 });
 
-const meetingMaterials = defineCollection({
-  loader: glob({
-    pattern: "**/*.mdx",
-    base: "./src/content/meeting-materials",
-  }),
-  schema: z.object({
-    title: z.string(),
-    parent: z.string().optional(),
-    order: z.number().default(0),
-  }),
-});
-
 const meetingMaterialsAPI = defineCollection({
   loader: async () => loadGoogleDocTabs(MEETING_MATERIALS_DOC_ID),
   schema: GOOGLE_DOC_TABS_SCHEMA,
@@ -125,7 +113,6 @@ export const collections = {
   "working-groups": workingGroups,
   "recurring-meetings": recurringMeetings,
   bams,
-  "meeting-materials": meetingMaterials,
   "meeting-materials-api": meetingMaterialsAPI,
   "rfcs-api": rfcsAPI,
 };

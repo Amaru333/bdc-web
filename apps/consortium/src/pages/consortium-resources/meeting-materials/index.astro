@@ -1,14 +1,8 @@
 ---
-import { getCollection } from "astro:content";
 import Directory from "@layouts/Directory.astro";
-
-const docsData2 = await getCollection("meeting-materials-api");
 ---
 
 <Directory title="Meeting Materials">
-  <script define:vars={{ docsData2 }}>
-    console.log("Parsed Data:", docsData2);
-  </script>
   <div>
     <h1>Meeting Materials</h1>
     <p>Posters, Presentations, and other materials presented at the BDC consortium Face-to-Face meetings are collected in the following sub-pages, grouped by meeting date.</p>
