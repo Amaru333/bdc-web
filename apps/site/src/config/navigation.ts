@@ -6,54 +6,48 @@ export interface NavItem {
 
 export const navConfig: NavItem[] = [
   {
-    label: 'Data',
+    label: 'About',
     items: [
-      { label: 'Explore Data', href: '/data/explore' },
-      { label: 'Analyze Data', href: '/data/analyze' },
-      { label: 'Share Data', href: '/data/share' },
-      {
-        label: 'Impute Genotypes',
-        href: 'https://imputation.biodatacatalyst.nhlbi.nih.gov/#!',
-        external: true,
-      },
+      { label: 'BDC', href: '/about/bdc' },
+      { label: 'Key Collaborations', href: '/about/key-collaborations' },
+      { label: 'Research Communities', href: '/about/research-communities' },
+      { label: 'Studies', href: '/about/studies' },
     ],
   },
   {
-    label: 'Resources',
+    label: 'Data',
     items: [
-      { label: 'User FAQs', href: '/resources/faqs' },
-      { label: 'Usage Costs', href: '/resources/costs' },
+      { label: 'Explore', href: '/data/explore' },
+      { label: 'Share', href: '/data/share' },
+      {
+        label: 'Impute',
+        href: 'https://imputation.biodatacatalyst.nhlbi.nih.gov/#!',
+        external: true,
+      },
+      { label: 'Analyze', href: '/data/analyze' },
+    ],
+  },
+  {
+    label: 'News',
+    items: [
+      { label: 'Latest Updates', href: '/news/latest-updates' },
+      { label: 'News Coverage', href: '/news/news-coverage' },
+      { label: 'BDC-Enabled Research', href: '/news/bdc-enabled-research' },
+      { label: 'Events', href: '/news/events' },
+    ],
+  },
+  {
+    label: 'Help',
+    items: [
       {
         label: 'Documentation',
         href: 'https://bdcatalyst.gitbook.io/biodata-catalyst-documentation',
         external: true,
       },
-      { label: 'Terms of Use', href: '/resources/terms' },
-    ],
-  },
-  {
-    label: 'Updates',
-    items: [
-      { label: 'News', href: '/updates/news' },
-      { label: 'Events', href: '/updates/events' },
-      { label: 'Publications', href: '/updates/publications' },
-      { label: 'News Coverage', href: '/updates/news-coverage' },
-    ],
-  },
-  {
-    label: 'About',
-    items: [
-      { label: 'Overview', href: '/about/overview' },
-      { label: 'Research Communities', href: '/about/research-communities' },
-      { label: 'Key Collaborations', href: '/about/key-collaborations' },
-      { label: 'Studies', href: '/about/studies' },
-    ],
-  },
-  {
-    label: 'Support',
-    items: [
-      { label: 'Contact', href: '/support/contact' },
-      { label: 'Guidance', href: '/support/guidance' },
+      { label: 'Contact & Support', href: '/help/contact-and-support' },
+      { label: 'Usage Costs', href: '/help/costs' },
+      { label: 'Terms of Use', href: '/help/terms' },
+      { label: 'FAQs', href: '/help/faqs' },
     ],
   },
 ];

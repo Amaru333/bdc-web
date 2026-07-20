@@ -63,8 +63,12 @@ const publications = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
-    location: z.string(),
+    journalName: z.string(),
     url: z.string(),
+    status: z.enum(['Published', 'PrePrint', 'Other']).optional(),
+    bdcContribution: z.array(z.string()).optional(),
+    researchArea: z.array(z.string()).optional(),
+    researchCommunity: z.array(z.string()).optional(),
   }),
 });
 
@@ -169,6 +173,32 @@ const programs = defineCollection({
   }),
 });
 
+const banners = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/banners' }),
+  schema: z.object({
+    variant: z
+      .enum(['info', 'emergency', 'warning', 'error', 'success'])
+      .default('info'),
+    active: z.boolean().default(false),
+    importance: z.number(),
+    homeOnly: z.boolean().default(false),
+  }),
+});
+
+const eep = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/eep' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      signifier: z.string().optional(),
+      slug: z.string(),
+      roles: z.array(z.string()),
+      term_start: z.coerce.date(),
+      photo: image().optional(),
+      adhoc: z.boolean().optional().default(false),
+    }),
+});
+
 export const collections = {
   news,
   events,
@@ -176,4 +206,6 @@ export const collections = {
   coverage,
   faqs,
   programs,
+  eep,
+  banners,
 };
