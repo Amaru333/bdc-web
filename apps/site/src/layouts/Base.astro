@@ -27,6 +27,8 @@ const displayTitle = title.includes('BioData Catalyst')
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{displayTitle}</title>
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link href="/pagefind/pagefind-component-ui.css" rel="stylesheet" />
+    <script src="/pagefind/pagefind-component-ui.js" type="module"></script>
     <ClientRouter />
     {enableRecaptcha && (
       <script
@@ -50,9 +52,22 @@ const displayTitle = title.includes('BioData Catalyst')
     <a class="usa-skipnav" href="#main-content">Skip to main content</a>
     <SiteAlertList isHomePage={isHomePage} />
     <SiteHeader client:only="react" transition:persist />
+    <pagefind-modal instance="site-modal" reset-on-close></pagefind-modal>
     <main id="main-content" data-pagefind-body>
       <slot />
     </main>
     <SiteFooter />
+    <script is:inline>
+      const getSearchModal = () =>
+        document.querySelector('pagefind-modal[instance="site-modal"]');
+
+      const openSearchModal = () => {
+        const modal = getSearchModal();
+        if (!modal || typeof modal.open !== 'function') return;
+        modal.open();
+      };
+
+      window.addEventListener('bdc:open-search-modal', openSearchModal);
+    </script>
   </body>
 </html>

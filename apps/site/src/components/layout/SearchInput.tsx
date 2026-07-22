@@ -1,22 +1,18 @@
-import { Search as USWDSSearchInput } from '@trussworks/react-uswds';
-
 export function SearchInput() {
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const query = formData.get('search');
-    if (query) {
-      window.location.href = `/search?q=${encodeURIComponent(query.toString())}`;
-    }
+  const openSearchModal = () => {
+    window.dispatchEvent(new CustomEvent('bdc:open-search-modal'));
   };
 
   return (
     <div className="padding-y-2">
-      <USWDSSearchInput
-        size="small"
-        placeholder="Search..."
-        onSubmit={handleSearch}
-      />
+      <button
+        type="button"
+        className="usa-button usa-button--unstyled width-full text-no-wrap"
+        aria-label="Open search"
+        onClick={openSearchModal}
+      >
+        Search
+      </button>
     </div>
   );
 }
