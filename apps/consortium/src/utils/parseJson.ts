@@ -23,6 +23,23 @@ function escapeMarkdownLinkUrl(url: string): string {
   return url.replace(/\)/g, "%29");
 }
 
+const GOOGLE_DOCS_SOFT_BREAK = "\u000b";
+const CONTROL_CHARS_RE = /[\u0000-\u0008\u000c\u000e-\u001f\u007f]/g;
+
+function normalizeGoogleDocsText(raw: string): { text: string; trailingSoftBreaks: number } {
+  const normalized = (raw || "").replace(/\r\n?/g, "\n");
+  const trailingSoftBreaks = normalized.match(/\u000b+$/)?.[0].length ?? 0;
+
+  // Google Docs paragraphs end with a trailing newline in the API payload.
+  const withoutParagraphTerminator = normalized.replace(/\n$/, "");
+  const withSoftBreaks = withoutParagraphTerminator.replace(/\u000b/g, "\n");
+
+  return {
+    text: withSoftBreaks.replace(CONTROL_CHARS_RE, ""),
+    trailingSoftBreaks,
+  };
+}
+
 /** Move leading/trailing spaces outside emphasis markers so marked can parse them. */
 function wrapMarkdownInlineStyle(text: string, marker: string): string {
   const leading = text.match(/^\s*/)?.[0] ?? "";
@@ -33,8 +50,9 @@ function wrapMarkdownInlineStyle(text: string, marker: string): string {
 }
 
 function parseMarkdownTextRun(textRun: any): string {
-  let text = (textRun.content || "").replace(/\n$/, "");
-  if (!text) return "";
+  const { text: normalizedText, trailingSoftBreaks } = normalizeGoogleDocsText(textRun.content || "");
+  let text = normalizedText.replace(/\n+$/, "");
+  if (!text && trailingSoftBreaks === 0) return "";
 
   const style = textRun.textStyle || {};
   const url = style.link?.url;
@@ -44,8 +62,12 @@ function parseMarkdownTextRun(textRun: any): string {
   if (style.italic) text = wrapMarkdownInlineStyle(text, "*");
   if (style.strikethrough) text = wrapMarkdownInlineStyle(text, "~~");
 
-  if (url) {
+  if (url && text) {
     text = `[${escapeMarkdownLinkLabel(text)}](${escapeMarkdownLinkUrl(url)})`;
+  }
+
+  if (trailingSoftBreaks > 0) {
+    return `${text}${"  \n".repeat(trailingSoftBreaks)}`;
   }
 
   return text;
@@ -69,7 +91,7 @@ function isOrderedListLevel(lists: Record<string, any>, listId: string, nestingL
 }
 
 function getParagraphPlainText(paragraph: any): string | null {
-  const text = (paragraph.elements || []).map((el: any) => (el.textRun?.content || "").replace(/\n$/, "")).join("");
+  const text = (paragraph.elements || []).map((el: any) => normalizeGoogleDocsText(el.textRun?.content || "").text).join("");
   return text.trim() ? text.trim() : null;
 }
 
@@ -83,13 +105,13 @@ function isVisualHeadingParagraph(paragraph: any): boolean {
   const namedStyle = paragraph.paragraphStyle?.namedStyleType;
   if (namedStyle && namedStyle !== "NORMAL_TEXT") return false;
 
-  const runs = (paragraph.elements || []).filter((el: any) => (el.textRun?.content || "").replace(/\n$/, "").trim());
+  const runs = (paragraph.elements || []).filter((el: any) => normalizeGoogleDocsText(el.textRun?.content || "").text.trim());
   if (runs.length === 0) return false;
 
   let combined = "";
   for (const el of runs) {
     const run = el.textRun;
-    const content = (run.content || "").replace(/\n$/, "");
+    const content = normalizeGoogleDocsText(run.content || "").text;
     if (!content.trim()) continue;
 
     const textStyle = run.textStyle || {};
