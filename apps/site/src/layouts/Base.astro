@@ -1,9 +1,9 @@
 ---
-import { ClientRouter } from 'astro:transitions';
-import SiteAlertList from '@components/layout/SiteAlertList.astro';
-import SiteFooter from '@components/layout/SiteFooter.astro';
-import { SiteHeader } from '@components/layout/SiteHeader';
-import '../styles/global.scss';
+import { ClientRouter } from "astro:transitions";
+import SiteAlertList from "@components/layout/SiteAlertList.astro";
+import SiteFooter from "@components/layout/SiteFooter.astro";
+import { SiteHeader } from "@components/layout/SiteHeader";
+import "../styles/global.scss";
 
 interface Props {
   title: string;
@@ -14,10 +14,8 @@ interface Props {
 }
 
 const { title, enableRecaptcha = false } = Astro.props;
-const isHomePage = Astro.url.pathname === '/';
-const displayTitle = title.includes('BioData Catalyst')
-  ? title
-  : `${title} | BioData Catalyst`;
+const isHomePage = Astro.url.pathname === "/";
+const displayTitle = title.includes("BioData Catalyst") ? title : `${title} | BioData Catalyst`;
 ---
 
 <!doctype html>
@@ -30,13 +28,7 @@ const displayTitle = title.includes('BioData Catalyst')
     <link href="/pagefind/pagefind-component-ui.css" rel="stylesheet" />
     <script src="/pagefind/pagefind-component-ui.js" type="module"></script>
     <ClientRouter />
-    {enableRecaptcha && (
-      <script
-        src={`https://www.google.com/recaptcha/api.js?render=${import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY}`}
-        async
-        defer
-      />
-    )}
+    {enableRecaptcha && <script src={`https://www.google.com/recaptcha/api.js?render=${import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY}`} async defer />}
     <style>
       body {
         display: flex;
@@ -58,16 +50,31 @@ const displayTitle = title.includes('BioData Catalyst')
     </main>
     <SiteFooter />
     <script is:inline>
-      const getSearchModal = () =>
-        document.querySelector('pagefind-modal[instance="site-modal"]');
+      const getSearchModal = () => document.querySelector('pagefind-modal[instance="site-modal"]');
 
       const openSearchModal = () => {
         const modal = getSearchModal();
-        if (!modal || typeof modal.open !== 'function') return;
+        if (!modal || typeof modal.open !== "function") return;
         modal.open();
       };
 
-      window.addEventListener('bdc:open-search-modal', openSearchModal);
+      const handleSearchModalEnter = (event) => {
+        if (event.key !== "Enter" || event.isComposing) return;
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) return;
+
+        const modal = getSearchModal();
+        if (!modal?.contains(target)) return;
+
+        const query = target.value.trim();
+        if (!query) return;
+
+        event.preventDefault();
+        window.location.href = `/search?q=${encodeURIComponent(query)}`;
+      };
+
+      window.addEventListener("bdc:open-search-modal", openSearchModal);
+      document.addEventListener("keydown", handleSearchModalEnter);
     </script>
   </body>
 </html>

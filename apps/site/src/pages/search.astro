@@ -9,29 +9,42 @@ import Base from '@layouts/Base.astro';
       <div id="search-results" class="margin-top-4"></div>
     </div>
   </section>
-</Base>
 
-<link href="/pagefind/pagefind-ui.css" rel="stylesheet">
-<script src="/pagefind/pagefind-ui.js" is:inline></script>
-<script is:inline>
-  window.addEventListener('DOMContentLoaded', (event) => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const query = urlParams.get('q');
-
-    const pagefind = new PagefindUI({ 
-      element: "#search-results", 
-      showSubResults: true,
-      showImages: false,
-      translations: {
-        placeholder: "Search site..."
+  <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+  <script src="/pagefind/pagefind-ui.js" is:inline></script>
+  <script is:inline>
+    const initSearchResults = () => {
+      const container = document.querySelector('#search-results');
+      if (!container || container.dataset.pagefindReady || typeof PagefindUI === 'undefined') {
+        return;
       }
-    });
+      container.dataset.pagefindReady = 'true';
 
-    if (query) {
-      pagefind.triggerSearch(query);
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = urlParams.get('q');
+
+      const pagefind = new PagefindUI({
+        element: '#search-results',
+        showSubResults: true,
+        showImages: false,
+        translations: {
+          placeholder: 'Search site...',
+        },
+      });
+
+      if (query) {
+        pagefind.triggerSearch(query);
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSearchResults);
+    } else {
+      initSearchResults();
     }
-  });
-</script>
+    document.addEventListener('astro:page-load', initSearchResults);
+  </script>
+</Base>
 
 <style is:global>
   :root {
@@ -45,13 +58,9 @@ import Base from '@layouts/Base.astro';
   .pagefind-ui__message {
     margin: 1rem 0;
   }
-  
+
   .pagefind-ui__result-link {
     color: #005ea2 !important;
     text-decoration: underline !important;
   }
-  
-  .pagefind-ui__search-input {
-  }
-
 </style>
