@@ -44,7 +44,39 @@ const displayTitle = title.includes("BioData Catalyst") ? title : `${title} | Bi
     <a class="usa-skipnav" href="#main-content">Skip to main content</a>
     <SiteAlertList isHomePage={isHomePage} />
     <SiteHeader client:only="react" transition:persist />
-    <pagefind-modal instance="site-modal" reset-on-close></pagefind-modal>
+    <pagefind-modal instance="site-modal" reset-on-close>
+      <pagefind-modal-header>
+        <pagefind-input></pagefind-input>
+      </pagefind-modal-header>
+      <pagefind-modal-body>
+        <pagefind-summary></pagefind-summary>
+        <pagefind-results>
+          <Fragment
+            set:html={`<script type="text/pagefind-template">
+            <li class="pf-result">
+              <div class="pf-result-card">
+                <div class="pf-result-content">
+                  <p class="pf-result-title">
+                    <a class="pf-result-link" href="{{ meta.url | default(url) | safeUrl }}">{{ meta.title | default("Untitled") }}</a>
+                  </p>
+                  <p style="margin: 0;">
+                    <span style="display: inline-block; margin-right: 0.5rem; padding: 0.125rem 0.45rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; line-height: 1.2; background: #e7f6fd; color: #005ea2;">News</span>
+                    <span style="display: inline-block; padding: 0.125rem 0.45rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; line-height: 1.2; background: #fef0c8; color: #8b4700;">Article</span>
+                  </p>
+                  {{#if excerpt}}
+                  <p class="pf-result-excerpt">{{+ excerpt +}}</p>
+                  {{/if}}
+                </div>
+              </div>
+            </li>
+          </script>`}
+          />
+        </pagefind-results>
+      </pagefind-modal-body>
+      <pagefind-modal-footer>
+        <pagefind-keyboard-hints></pagefind-keyboard-hints>
+      </pagefind-modal-footer>
+    </pagefind-modal>
     <main id="main-content" data-pagefind-body>
       <slot />
     </main>
