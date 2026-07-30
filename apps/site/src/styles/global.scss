@@ -71,3 +71,14 @@ input[type="search"]::-webkit-search-cancel-button {
   margin-top: 0.5rem;
   padding-top: 0.5rem;
 }
+
+pagefind-modal[instance="site-modal"] {
+  --pf-font: #{core.core-font-family('body')};
+}
+
+pagefind-modal[instance="site-modal"] .pf-result-title,
+pagefind-modal[instance="site-modal"] .pf-result-link,
+pagefind-modal[instance="site-modal"] .pf-searchbox-result-title,
+pagefind-modal[instance="site-modal"] .pf-heading-link {
+  font-weight: 700 !important;
+}
