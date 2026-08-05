@@ -1,3 +1,5 @@
+.lycheecache
+
 # apps/site + apps/docs
 node_modules
 dist
