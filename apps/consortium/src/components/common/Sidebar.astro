@@ -1,7 +1,7 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection } from "astro:content";
 
-const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
 
 type NavItem = {
   label: string;
@@ -10,75 +10,74 @@ type NavItem = {
   children?: NavItem[];
 };
 
-const materials = await getCollection('meeting-materials');
-const rfcs = await getCollection('rfcs');
+const meetingMaterialsAPI = await getCollection("meeting-materials-api");
+const rfcsAPI = (await getCollection("rfcs-api")).sort(
+  (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
+);
 
-const materialParents = materials
-  .filter((m) => !m.data.parent)
-  .sort((a, b) => b.data.order - a.data.order);
+const rfcChildren: NavItem[] = rfcsAPI.map((rfc) => ({
+  label: rfc.data.name,
+  href: `/consortium-resources/rfcs/${rfc.data.slug}`,
+  children: rfc.data.children?.length
+    ? [...rfc.data.children]
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((child: { name: string; slug: string }) => ({
+          label: child.name,
+          href: `/consortium-resources/rfcs/${rfc.data.slug}/${child.slug}`,
+        }))
+    : undefined,
+}));
 
-const rfcChildren: NavItem[] = rfcs
-  .sort((a, b) => a.data.order - b.data.order)
-  .map((rfc) => ({
-    label: rfc.data.title,
-    href: `/consortium-resources/rfcs/${rfc.id}`,
+const meetingMaterialsChildren: NavItem[] = meetingMaterialsAPI.map((doc) => {
+  const { name, slug, children } = doc.data;
+
+  const mappedChildren = children?.map((child: any) => ({
+    label: child.name,
+    href: `/consortium-resources/meeting-materials/${slug}/${child.slug}`,
   }));
 
-const meetingMaterialsChildren: NavItem[] = materialParents.map((parent) => {
-  const children = materials
-    .filter(
-      (m) =>
-        m.data.parent === parent.id ||
-        m.data.parent === parent.id.split('/')[0],
-    )
-    .sort((a, b) => a.data.order - b.data.order)
-    .map((child) => ({
-      label: child.data.title,
-      href: `/consortium-resources/meeting-materials/${child.id}`,
-    }));
-
   return {
-    label: parent.data.title,
-    href: `/consortium-resources/meeting-materials/${parent.id}`,
-    children: children.length > 0 ? children : undefined,
+    label: name,
+    href: `/consortium-resources/meeting-materials/${slug}`,
+    children: mappedChildren && mappedChildren.length > 0 ? mappedChildren : undefined,
   };
 });
 
 const nav: NavItem[] = [
   {
-    label: 'Consortium Resources',
-    href: '/consortium-resources',
+    label: "Consortium Resources",
+    href: "/consortium-resources",
     exact: true,
   },
   {
-    label: 'Meeting Materials',
-    href: '/consortium-resources/meeting-materials',
+    label: "Meeting Materials",
+    href: "/consortium-resources/meeting-materials",
     children: meetingMaterialsChildren,
   },
   {
-    label: 'RFCs',
-    href: '/consortium-resources/rfcs',
+    label: "RFCs",
+    href: "/consortium-resources/rfcs",
     children: rfcChildren.length > 0 ? rfcChildren : undefined,
   },
   {
-    label: 'Consortium New Member Form',
-    href: '/consortium-resources/new-member-form-page',
+    label: "Consortium New Member Form",
+    href: "/consortium-resources/new-member-form-page",
   },
   {
-    label: 'Consortium Onboarding Form',
-    href: '/consortium-resources/onboarding-form',
+    label: "Consortium Onboarding Form",
+    href: "/consortium-resources/onboarding-form",
   },
   {
-    label: 'Consortium Offboarding Form',
-    href: '/consortium-resources/consortium-offboarding',
+    label: "Consortium Offboarding Form",
+    href: "/consortium-resources/consortium-offboarding",
   },
   {
-    label: 'Publications and Engagement',
-    href: '/consortium-resources/publications',
+    label: "Publications and Engagement",
+    href: "/consortium-resources/publications",
   },
   {
-    label: 'BDC Branding',
-    href: '/consortium-resources/bdc-branding',
+    label: "BDC Branding",
+    href: "/consortium-resources/bdc-branding",
   },
 ];
 
