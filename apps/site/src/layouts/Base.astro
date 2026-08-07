@@ -1,5 +1,8 @@
 ---
 import { ClientRouter } from 'astro:transitions';
+import { AnalyticsController } from '@components/layout/AnalyticsController';
+import { ExitNoticeController } from '@components/layout/ExitNoticeController';
+import { ModalController } from '@components/layout/ModalController';
 import SiteAlertList from '@components/layout/SiteAlertList.astro';
 import SiteFooter from '@components/layout/SiteFooter.astro';
 import { SiteHeader } from '@components/layout/SiteHeader';
@@ -18,6 +21,8 @@ const isHomePage = Astro.url.pathname === '/';
 const displayTitle = title.includes('BioData Catalyst')
   ? title
   : `${title} | BioData Catalyst`;
+const gtmId = import.meta.env.PUBLIC_GTM_ID;
+const hasGtm = typeof gtmId === 'string' && gtmId.length > 0;
 ---
 
 <!doctype html>
@@ -47,9 +52,23 @@ const displayTitle = title.includes('BioData Catalyst')
     </style>
   </head>
   <body data-pagefind-ignore>
+    {hasGtm && <AnalyticsController client:load gtmId={gtmId} />}
+    {hasGtm && (
+      <noscript>
+        <iframe
+          src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"
+          title="Google Tag Manager"
+        />
+      </noscript>
+    )}
     <a class="usa-skipnav" href="#main-content">Skip to main content</a>
     <SiteAlertList isHomePage={isHomePage} />
-    <SiteHeader client:only="react" transition:persist />
+    <SiteHeader client:load transition:persist />
+    <ExitNoticeController client:only="react" />
+    <ModalController client:only="react" />
     <main id="main-content" data-pagefind-body>
       <slot />
     </main>

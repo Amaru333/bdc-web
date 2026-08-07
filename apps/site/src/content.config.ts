@@ -206,9 +206,8 @@ const programContent = defineCollection({
 const banners = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/banners' }),
   schema: z.object({
-    variant: z
-      .enum(['info', 'emergency', 'warning', 'error', 'success'])
-      .default('info'),
+    variant: z.enum(['info', 'emergency']).default('info'),
+    title: z.string().optional(),
     active: z.boolean().default(false),
     importance: z.number(),
     homeOnly: z.boolean().default(false),
@@ -252,8 +251,8 @@ export const collections = {
   coverage,
   faqs,
   programs,
-  programContent,
   eep,
   banners,
   fellows,
+  programContent,
 };
