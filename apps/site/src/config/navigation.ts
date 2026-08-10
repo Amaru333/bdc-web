@@ -19,12 +19,13 @@ export const navConfig: NavItem[] = [
     items: [
       { label: 'Explore', href: '/data/explore' },
       { label: 'Share', href: '/data/share' },
-      {
-        label: 'Impute',
-        href: 'https://imputation.biodatacatalyst.nhlbi.nih.gov/#!',
-        external: true,
-      },
+      { label: 'Impute', href: '/data/impute' },
       { label: 'Analyze', href: '/data/analyze' },
+      { label: 'Bring Your Own Tools', href: '/data/bring-your-own-tools' },
+      {
+        label: 'BDC for Learning and Training',
+        href: '/data/learning-and-training',
+      },
     ],
   },
   {

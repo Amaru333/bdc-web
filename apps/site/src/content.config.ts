@@ -10,6 +10,15 @@ const news = defineCollection({
       title: z.string(),
       subtitle: z.string().optional(),
       date: z.coerce.date(),
+      updateType: z
+        .enum([
+          'General Update',
+          'Research Highlight',
+          'Contributor Highlight',
+          'Monthly Update',
+          'Release Notes',
+        ])
+        .default('General Update'),
       tags: z.array(z.string()).default([]),
       heroImage: image().optional(),
       heroAlt: z.string().optional(),
@@ -20,6 +29,7 @@ const news = defineCollection({
           keywords: z.array(z.string()).optional(),
         })
         .optional(),
+      excerpt: z.string().optional(),
     }),
 });
 
@@ -37,13 +47,22 @@ const events = defineCollection({
       display_date: z.string().optional(),
       location: z.string().optional(),
       url: z.string().optional(),
-      forum_post: z.string().optional(),
+      eventType: z.string().optional(),
       meeting_info: z.record(z.string(), z.string()).optional(),
       registration_required: z.boolean().optional(),
       flyer: z.string().optional(),
       tags: z.array(z.string()).default([]),
       heroImage: image().optional(),
       heroAlt: z.string().optional(),
+      materials: z
+        .array(
+          z.object({
+            type: z.enum(['recording', 'slides', 'forum']),
+            url: z.string().url(),
+            label: z.string(),
+          }),
+        )
+        .optional(),
       seo: z
         .object({
           title: z.string().optional(),
@@ -51,6 +70,7 @@ const events = defineCollection({
           keywords: z.array(z.string()).optional(),
         })
         .optional(),
+      excerpt: z.string().optional(),
     }),
 });
 
@@ -173,12 +193,21 @@ const programs = defineCollection({
   }),
 });
 
+const programContent = defineCollection({
+  loader: glob({ pattern: '*.{md,mdx}', base: './src/content/programs' }),
+  schema: z.object({
+    excerpt: z.string().optional(),
+    title: z.string().optional(),
+    priority: z.number().optional(),
+    dataAvailable: z.boolean().default(true),
+  }),
+});
+
 const banners = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/banners' }),
   schema: z.object({
-    variant: z
-      .enum(['info', 'emergency', 'warning', 'error', 'success'])
-      .default('info'),
+    variant: z.enum(['info', 'emergency']).default('info'),
+    title: z.string().optional(),
     active: z.boolean().default(false),
     importance: z.number(),
     homeOnly: z.boolean().default(false),
@@ -199,6 +228,22 @@ const eep = defineCollection({
     }),
 });
 
+const fellows = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/fellows' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      university: z.string(),
+      photo: image(),
+      cohort: z.string(),
+      bio: z.string(),
+      project: z.object({
+        title: z.string(),
+        abstract: z.string(),
+      }),
+    }),
+});
+
 export const collections = {
   news,
   events,
@@ -208,4 +253,6 @@ export const collections = {
   programs,
   eep,
   banners,
+  fellows,
+  programContent,
 };

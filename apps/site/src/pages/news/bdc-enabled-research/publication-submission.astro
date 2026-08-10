@@ -20,24 +20,35 @@
  *   PUBLIC_RECAPTCHA_SITE_KEY
  */
 
+import InlineAlert from '@bdc/ui-astro/alert/InlineAlert.astro';
+import Link from '@bdc/ui-astro/link/Link.astro';
 import DynamicCustomObjectForm from '@components/forms/DynamicCustomObjectForm.tsx';
-import InlineAlert from '@components/InlineAlert.astro';
 import Base from '@layouts/Base.astro';
 import { getCustomObjectSchema } from '../../../util/freshdesk/getCustomObjectSchema';
 import type { CustomObjectField } from '../../../util/freshdesk/typesCustomObjects';
 
 let fields: CustomObjectField[] = [];
 let formError = false;
+const hasFreshdeskAuth =
+  Boolean(import.meta.env.FRESHDESK_DOMAIN) &&
+  Boolean(import.meta.env.FRESHDESK_API_KEY);
+const schemaIdRaw = import.meta.env
+  .FRESHDESK_CUSTOM_OBJECT_PUBLICATIONS_SCHEMA_ID;
 
-const schemaId = Number(
-  import.meta.env.FRESHDESK_CUSTOM_OBJECT_PUBLICATIONS_SCHEMA_ID,
-);
+const schemaId = Number(schemaIdRaw);
 
-try {
-  fields = await getCustomObjectSchema(schemaId);
-} catch (e) {
-  console.error('Failed to fetch publication submission form config:', e);
+if (!hasFreshdeskAuth || !schemaIdRaw || Number.isNaN(schemaId)) {
+  console.warn(
+    'Skipping publication submission schema fetch: missing Freshdesk credentials or schema ID.',
+  );
   formError = true;
+} else {
+  try {
+    fields = await getCustomObjectSchema(schemaId);
+  } catch (e) {
+    console.error('Failed to fetch publication submission form config:', e);
+    formError = true;
+  }
 }
 ---
 
@@ -50,18 +61,18 @@ try {
           <h1>Submit BDC-Enabled Research</h1>
           <div class="usa-prose">
             <p>
-              Researchers may use this form to submit publications that leveraged BDC resources for consideration on the BDC-Enabled Research page. View all <a href="/news/bdc-enabled-research">BDC-Enabled Research Publications</a>.
+              Researchers may use this form to submit publications that leveraged BDC resources for consideration on the BDC-Enabled Research page. View all <Link to="/news/bdc-enabled-research">BDC-Enabled Research Publications</Link>.
             </p>
             <p>
               Provide the requested information below. Your submission will be reviewed by the BDC team, and we may contact you if additional information or clarification is needed. Submission of a publication does not guarantee inclusion on the website.
             </p>
           </div>
 
-          <InlineAlert variant="info">
+          <InlineAlert variant="info" heading="Prerequisites">
             Before you begin: Have your publication title and DOI, PubMed ID, or publication URL available. The form takes approximately 2-3 minutes to complete. 
           </InlineAlert>
 
-          <h2 style="margin-bottom: 0;">Published Research Form</h2>
+          <h2 class="margin-bottom-0">Published Research Form</h2>
           <DynamicCustomObjectForm
             fields={fields}
             schemaId={schemaId}

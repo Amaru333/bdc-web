@@ -1,5 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
+import Button from '@bdc/ui-astro/button/Button.astro';
+import CardCta from '@bdc/ui-astro/card/CardCta.astro';
+import Hero from '@bdc/ui-astro/layout/Hero.astro';
+import BdcHostedIndicator from '@components/events/BdcHostedIndicator.astro';
 import EventsList from '@components/events/EventsList.astro';
 import Base from '@layouts/Base.astro';
 
@@ -17,30 +21,47 @@ const past = allEvents.filter((e) => (e.data.end_date ?? e.data.date) < now);
 ---
 
 <Base title="Events">
+  <Hero
+    eyebrow="News"
+    title="Events"
+    description="Explore upcoming webinars, trainings, workshops, conferences, and community sessions from across the BDC ecosystem."
+    primaryCta={{ label: 'Browse Upcoming Events', href: '#upcoming-events' }}
+    secondaryCta={{ label: 'View Past Events', href: '/news/events/archive/' }}
+  >
+    <div slot="visual" class="width-full maxw-mobile-lg">
+      <CardCta
+        icon="event"
+        title="Plan your calendar"
+        text={`${upcoming.length} upcoming and ${past.length} archived events are available.`}
+        href="#upcoming-events"
+        cta="See upcoming events"
+      />
+    </div>
+  </Hero>
 
-  <section class="usa-section">
+  <section id="upcoming-events" class="usa-section padding-top-4">
     <div class="grid-container">
 
-      <h1>Events</h1>
+      <div class="display-flex flex-wrap flex-justify gap-1 margin-bottom-2">
+        <h2 class="font-heading-lg margin-0">Upcoming</h2>
+        <p class="margin-0 text-base-dark font-ui-sm">{upcoming.length} event{upcoming.length === 1 ? '' : 's'}</p>
+      </div>
 
-      <section class="margin-top-4">
-        <h2 class="font-heading-lg margin-bottom-2">Upcoming</h2>
-        {
-          upcoming.length > 0
+      <p class="usa-prose">Events denoted with
+        <BdcHostedIndicator decorative size={20} class="text-baseline" />
+        are hosted by BDC.
+      </p>
+
+      <section>
+        {upcoming.length > 0
           ? <EventsList items={upcoming} />
           : 'No upcoming events are scheduled at this time. Check back soon!'
         }
       </section>
 
-      <br />
-
-      {past.length > 0 && (
-        <section class="margin-top-4">
-          <h2 class="font-heading-lg margin-bottom-2">Past</h2>
-          <EventsList items={past} />
-        </section>
-      )}
-
+      <section class="margin-top-4 text-center">
+        <Button variant="default" centered href="/news/events/archive/">View past events</Button>
+      </section>
     </div>
   </section>
 

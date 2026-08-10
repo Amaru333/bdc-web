@@ -1,0 +1,132 @@
+---
+import IconBadge from '@bdc/ui-astro/icon/IconBadge.astro';
+import Link from '@bdc/ui-astro/link/Link.astro';
+
+interface Step {
+  number: string;
+  icon?: string;
+  title: string;
+  description?: string;
+  action: {
+    label: string;
+    path: string;
+  };
+}
+
+interface Props {
+  steps: Step[];
+  tone?: 'dark' | 'muted';
+}
+
+const { steps, tone = 'dark' } = Astro.props;
+const iconTone = tone === 'muted' ? 'secondary' : 'cool';
+const toneClasses = {
+  dark: {
+    item: 'bg-primary-dark border-left-05',
+    title: 'text-base-lightest',
+    description: 'text-base-lightest',
+    link: 'text-base-lightest hover:text-white',
+    segment: 'bg-primary',
+    segmentActive: 'bg-info-lighter',
+  },
+  muted: {
+    item: 'bg-white border-left-05 shadow-1',
+    title: 'text-primary-darker',
+    description: 'text-base-dark',
+    link: 'text-primary hover:text-primary-dark',
+    segment: 'bg-base-lighter',
+    segmentActive: 'bg-primary',
+  },
+} as const;
+
+const accentBorderClasses = [
+  'border-primary',
+  'border-secondary',
+  'border-accent-cool',
+  'border-accent-warm',
+];
+---
+
+<ol class="process-steps add-list-reset margin-y-3 padding-0">
+  {steps.map((step, index) => (
+    <li
+      class:list={[
+        'process-steps__item padding-2 radius-lg display-flex flex-column',
+        toneClasses[tone].item,
+        accentBorderClasses[index % accentBorderClasses.length],
+      ]}
+    >
+      <div class="display-flex flex-align-center margin-top-1 margin-bottom-2">
+        {step.icon && (
+          <IconBadge icon={step.icon} tone={iconTone} class="margin-right-1" />
+        )}
+        <h3 class:list={['font-heading-md margin-0', toneClasses[tone].title]}>{step.title}</h3>
+      </div>
+
+      {step.description && <p class:list={['margin-0 flex-1 line-height-sans-5', toneClasses[tone].description]}>{step.description}</p>}
+
+      <Link to={step.action.path} class:list={['text-bold text-center margin-y-2', toneClasses[tone].link]}>
+        {step.action.label} &raquo;
+      </Link>
+
+      <div class="process-steps__progress margin-top-2" aria-hidden="true" style={`--process-step-count: ${steps.length};`}>
+        {steps.map((_, segmentIndex) => (
+          <span
+            class:list={[
+              'process-steps__segment radius-pill',
+              segmentIndex <= index ? toneClasses[tone].segmentActive : toneClasses[tone].segment,
+            ]}
+          ></span>
+        ))}
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style lang="scss">
+  .process-steps {
+    display: grid;
+    gap: 0.95rem;
+  }
+
+  .process-steps__item {
+    transition: transform 180ms ease;
+  }
+
+  .process-steps__item:hover {
+    transform: translateY(-2px);
+  }
+
+  .process-steps__progress {
+    display: grid;
+    gap: 0.28rem;
+    grid-template-columns: repeat(var(--process-step-count), minmax(0, 1fr));
+  }
+
+  .process-steps__segment {
+    height: 0.28rem;
+  }
+
+  @media (min-width: 40em) {
+    .process-steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64em) {
+    .process-steps {
+      gap: 1rem;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .process-steps__item {
+      transition: none;
+    }
+
+    .process-steps__item:hover {
+      transform: none;
+    }
+  }
+</style>

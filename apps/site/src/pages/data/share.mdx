@@ -2,24 +2,73 @@
 title: Share Data
 layout: ../../layouts/Page.astro
 ---
-import SiteAlert from '@components/layout/SiteAlert.astro';
+import Icon from '@components/Icon.astro'
 
-Sharing scientific data accelerates biomedical research discovery by enabling validation of research results, providing accessibility to high-value datasets, and promoting data reuse for future research studies. 
+<span class="usa-intro">
+  Sharing scientific data through BDC helps make research data available for access, reuse, and future biomedical discoveries.
+</span>
 
-<SiteAlert title="BDC as a data repository" variant="info">
-  Note: This page provides information about using BDC as a data repository, which means making data available to individuals who have eRA Commons credentials and who request and receive approved data access requests (DARs) through the [Database of Genotypes and Phenotypes (dbGaP)](https://www.ncbi.nlm.nih.gov/gap/). This is different from research teams collaborating on the analyses of BDC-hosted and/or Bring Your Own Data, which is described on the [Analyze Data webpage](/use-bdc/analyze-data).
-</SiteAlert>
+Researchers can use BDC as a data repository when preparing to submit or share data in accordance with NIH and NHLBI data sharing expectations. This page is intended for researchers and study teams preparing to make data available through BDC.
 
-## Instructions and Support for Sharing Data in BDC
+*If you want to analyze BDC-hosted data or bring your own data into a workspace for analysis, visit the [Analyze Data](/data/analyze) page.*
 
-NHLBI provides instructions and support to researchers preparing and submitting data to BDC:
+## BDC Data Submission Instructions
 
-- [Instructions for Preparing Clinical Research Datasets](https://www.nhlbi.nih.gov/grants-and-training/policies-and-guidelines/guidelines-for-preparing-clinical-study-data-sets-for-submission-to-the-nhlbi-data-repository)
-- [Instructions for Data Submission to BDC](https://bdcatalyst.gitbook.io/biodata-catalyst-documentation/data-management/data-submission-instructions)
-- [Data Submission FAQs](https://bdcatalyst.gitbook.io/biodata-catalyst-documentation/data-management/data-submission-instructions/data-submission-faqs)
+Researchers preparing to submit data to BDC should begin with the data submission instructions, which explain the submission process and help study teams understand what to prepare before working with the BDC Data Management Core (DMC). BDC uses the [NIH database of Genotypes and Phenotypes (dbGaP)](https://dbgap.ncbi.nlm.nih.gov/home/) for registration and access. 
 
-Researchers with BDC data-sharing-related inquiries should go to the [Contact Us webpage](/help-and-support/contact-us) and select the "Data Submission" type (dropdown option).
+<div class="usa-card usa-card__container padding-4 usa-prose">
+  <Icon name="upload_file" size={4}/>
+  ### Instructions for Data Submission to BDC
 
-## NIH and NHLBI Data Management and Sharing Policies
+  These instructions describe the submission process and help study teams understand what to prepare before working with the BDC Data Management Core (DMC). They include step-by-step guidance for submitting data to BDC, including preparation, registration, submission, and release.
 
-NIH &mdash; including its institutes, centers, and offices &mdash; has data-sharing policies that researchers must abide by, including the NIH [Data Management and Sharing (DMS) Policy (effective January 25, 2023)](https://sharing.nih.gov/data-management-and-sharing-policy/about-data-management-and-sharing-policies/data-management-and-sharing-policy-overview#after), which provides information about [selecting a data repository](https://sharing.nih.gov/data-management-and-sharing-policy/sharing-scientific-data/selecting-a-data-repository). 
+  [→ View Instructions in BDC Documentation](https://bdcatalyst.gitbook.io/biodata-catalyst-documentation/data-management/data-submission-instructions)
+</div>
+
+## Data Preparation Instructions and Submission FAQs
+
+<div class="display-flex flex-row">
+  <div class="usa-card usa-card__container ">
+    <div class="usa-card__header">
+      <h2 class="usa-card__heading heading">
+        Instructions for Preparing Clinical Research Datasets
+      </h2>
+    </div>
+    <div slot="content" class="usa-card__body">
+      Review guidance, best practices, and requirements for preparing clinical research datasets for submission to BDC.
+
+      [View on NHLBI website >](https://www.nhlbi.nih.gov/grants-and-training/policies-and-guidelines/guidelines-for-preparing-clinical-study-data-sets-for-submission-to-the-nhlbi-data-repository)
+    </div>
+  </div>
+  <div class="usa-card usa-card__container ">
+    <div class="usa-card__header">
+      <h2 class="usa-card__heading heading">
+        Data Submission FAQs
+      </h2>
+    </div>
+    <div slot="content" class="usa-card__body">
+      See Answers to common questions about data submission, file requirements, and the review and approval process.
+
+      [View FAQs >](https://bdcatalyst.gitbook.io/biodata-catalyst-documentation/data-management/data-submission-instructions/data-submission-faqs)
+    </div>
+  </div>
+</div>
+
+# NIH Data Management and Sharing Policies
+
+NIH — including its institutes and centers — has data-sharing policies that researchers must abide by, including the NIH [Data Management and Sharing (DMS) Policy (effective January 25, 2023)](https://sharing.nih.gov/data-management-and-sharing-policy/about-data-management-and-sharing-policies/data-management-and-sharing-policy-overview#after), which provides information about [selecting a data repository](https://sharing.nih.gov/data-management-and-sharing-policy/sharing-scientific-data/selecting-a-data-repository). 
+
+Researchers who plan to use BDC as their data repository should include "NHLBI BioData Catalyst" in their [data management and sharing plans](https://sharing.nih.gov/data-management-and-sharing-policy/planning-and-budgeting-for-data-management-and-sharing/writing-a-data-management-and-sharing-plan#after).
+
+[→ Refer to NIH Data Management and Sharing](https://grants.nih.gov/policy-and-compliance/policy-topics/sharing-policies/dms) for more information
+
+<div class="usa-card usa-card__container padding-4 usa-prose">
+  <Icon name="grid_view" size={4}/>
+
+  ### Contact us about data submission
+  Researchers with BDC data-sharing or data-submission questions can use the Contact & Support page and select Data Submission from the form dropdown.
+
+  Special cases or questions about specific data types can be discussed during the submission process.
+
+  [→ Contact Us about Data Submission](/help/contact-bdc/)
+</div>
