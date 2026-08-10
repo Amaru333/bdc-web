@@ -84,6 +84,78 @@ const displayTitle = title.includes("BioData Catalyst") ? title : `${title} | Bi
     <script is:inline>
       const getSearchModal = () => document.querySelector('pagefind-modal[instance="site-modal"]');
 
+      const toTitleCase = (value) =>
+        value
+          .split(" ")
+          .filter(Boolean)
+          .map((word) => word[0].toUpperCase() + word.slice(1))
+          .join(" ");
+
+      const getBreadcrumbLabel = (href) => {
+        try {
+          const parsed = new URL(href, window.location.origin);
+          const segments = parsed.pathname.split("/").filter(Boolean);
+          if (segments.length === 0) return "";
+
+          return segments
+            .map((segment) => decodeURIComponent(segment))
+            .map((segment) => segment.replace(/\.[a-z0-9]+$/i, ""))
+            .map((segment) => segment.replace(/[-_]+/g, " "))
+            .map(toTitleCase)
+            .join(" > ");
+        } catch {
+          return "";
+        }
+      };
+
+      const upsertModalResultBreadcrumb = (link) => {
+        if (!(link instanceof HTMLAnchorElement)) return;
+
+        const breadcrumbLabel = getBreadcrumbLabel(link.href);
+        if (!breadcrumbLabel) return;
+
+        const resultContent = link.closest(".pf-result-content");
+        if (!resultContent) return;
+
+        let breadcrumb = resultContent.querySelector(".pf-result-breadcrumb");
+        if (!breadcrumb) {
+          breadcrumb = document.createElement("p");
+          breadcrumb.className = "pf-result-breadcrumb";
+          breadcrumb.style.margin = "0.35rem 0 0.5rem";
+          breadcrumb.style.color = "#565c65";
+          breadcrumb.style.fontSize = "0.9rem";
+          breadcrumb.style.fontWeight = "600";
+
+          const title = link.closest(".pf-result-title");
+          if (title?.parentNode) {
+            title.parentNode.insertBefore(breadcrumb, title.nextSibling);
+          } else {
+            resultContent.appendChild(breadcrumb);
+          }
+        }
+
+        if (breadcrumb.textContent !== breadcrumbLabel) {
+          breadcrumb.textContent = breadcrumbLabel;
+        }
+      };
+
+      const updateModalBreadcrumbs = () => {
+        document.querySelectorAll(".pf-result-link").forEach((link) => {
+          upsertModalResultBreadcrumb(link);
+        });
+      };
+
+      const initModalBreadcrumbObserver = () => {
+        const modal = getSearchModal();
+        if (!modal || modal.dataset.breadcrumbObserverReady) return;
+
+        modal.dataset.breadcrumbObserverReady = "true";
+        const observer = new MutationObserver(updateModalBreadcrumbs);
+        observer.observe(modal, { childList: true, subtree: true });
+      };
+
+      window.bdcGetBreadcrumbLabel = getBreadcrumbLabel;
+
       const openSearchModal = () => {
         const modal = getSearchModal();
         if (!modal || typeof modal.open !== "function") return;
@@ -107,6 +179,8 @@ const displayTitle = title.includes("BioData Catalyst") ? title : `${title} | Bi
 
       window.addEventListener("bdc:open-search-modal", openSearchModal);
       document.addEventListener("keydown", handleSearchModalEnter);
+      initModalBreadcrumbObserver();
+      updateModalBreadcrumbs();
     </script>
   </body>
 </html>

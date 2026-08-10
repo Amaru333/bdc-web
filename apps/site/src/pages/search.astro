@@ -20,6 +20,72 @@ import Base from '@layouts/Base.astro';
       }
       container.dataset.pagefindReady = 'true';
 
+      const fallbackGetBreadcrumbLabel = (href) => {
+        try {
+          const parsed = new URL(href, window.location.origin);
+          const segments = parsed.pathname.split('/').filter(Boolean);
+          if (segments.length === 0) return '';
+
+          return segments
+            .map((segment) => decodeURIComponent(segment))
+            .map((segment) => segment.replace(/\.[a-z0-9]+$/i, ''))
+            .map((segment) => segment.replace(/[-_]+/g, ' '))
+            .map((segment) =>
+              segment
+                .split(' ')
+                .filter(Boolean)
+                .map((word) => word[0].toUpperCase() + word.slice(1))
+                .join(' '),
+            )
+            .join(' > ');
+        } catch {
+          return '';
+        }
+      };
+
+      const getBreadcrumbLabel =
+        typeof window.bdcGetBreadcrumbLabel === 'function'
+          ? window.bdcGetBreadcrumbLabel
+          : fallbackGetBreadcrumbLabel;
+
+      const upsertResultBreadcrumb = (link) => {
+        if (!(link instanceof HTMLAnchorElement)) return;
+
+        const breadcrumbLabel = getBreadcrumbLabel(link.href);
+        if (!breadcrumbLabel) return;
+
+        const result = link.closest('.pagefind-ui__result');
+        if (!result) return;
+
+        let breadcrumb = result.querySelector('.pagefind-ui__result-breadcrumb');
+        if (!breadcrumb) {
+          breadcrumb = document.createElement('p');
+          breadcrumb.className = 'pagefind-ui__result-breadcrumb';
+
+          const title = link.closest('.pagefind-ui__result-title');
+          if (title?.parentNode) {
+            title.parentNode.insertBefore(breadcrumb, title.nextSibling);
+          } else {
+            const firstExcerpt = result.querySelector('.pagefind-ui__result-excerpt');
+            if (firstExcerpt?.parentNode) {
+              firstExcerpt.parentNode.insertBefore(breadcrumb, firstExcerpt);
+            } else {
+              result.appendChild(breadcrumb);
+            }
+          }
+        }
+
+        if (breadcrumb.textContent !== breadcrumbLabel) {
+          breadcrumb.textContent = breadcrumbLabel;
+        }
+      };
+
+      const updateSearchBreadcrumbs = () => {
+        container.querySelectorAll('.pagefind-ui__result-link').forEach((link) => {
+          upsertResultBreadcrumb(link);
+        });
+      };
+
       const urlParams = new URLSearchParams(window.location.search);
       const query = urlParams.get('q');
 
@@ -35,6 +101,14 @@ import Base from '@layouts/Base.astro';
       if (query) {
         pagefind.triggerSearch(query);
       }
+
+      if (!container.dataset.breadcrumbObserverReady) {
+        container.dataset.breadcrumbObserverReady = 'true';
+        const observer = new MutationObserver(updateSearchBreadcrumbs);
+        observer.observe(container, { childList: true, subtree: true });
+      }
+
+      updateSearchBreadcrumbs();
     };
 
     if (document.readyState === 'loading') {
@@ -62,5 +136,12 @@ import Base from '@layouts/Base.astro';
   .pagefind-ui__result-link {
     color: #005ea2 !important;
     text-decoration: underline !important;
+  }
+
+  .pagefind-ui__result-breadcrumb {
+    margin: 0.35rem 0 0.5rem;
+    color: #565c65;
+    font-size: 0.9rem;
+    font-weight: 600;
   }
 </style>
