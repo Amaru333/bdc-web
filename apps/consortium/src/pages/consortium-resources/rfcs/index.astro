@@ -1,9 +1,9 @@
 ---
-import { getCollection } from "astro:content";
-import FileLink from "@components/common/FileLink.astro";
-import Directory from "@layouts/Directory.astro";
+import { getCollection } from 'astro:content';
+import FileLink from '@components/common/FileLink.astro';
+import Directory from '@layouts/Directory.astro';
 
-const rfcsAPI = (await getCollection("rfcs-api")).sort(
+const rfcsAPI = (await getCollection('rfcs-api')).sort(
   (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
 );
 const drafts = rfcsAPI.filter((rfc) => /\bDraft\b/i.test(rfc.data.name));

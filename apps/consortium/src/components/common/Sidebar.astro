@@ -1,7 +1,7 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection } from 'astro:content';
 
-const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 type NavItem = {
   label: string;
@@ -10,8 +10,8 @@ type NavItem = {
   children?: NavItem[];
 };
 
-const meetingMaterialsAPI = await getCollection("meeting-materials-api");
-const rfcsAPI = (await getCollection("rfcs-api")).sort(
+const meetingMaterialsAPI = await getCollection('meeting-materials-api');
+const rfcsAPI = (await getCollection('rfcs-api')).sort(
   (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
 );
 
@@ -31,53 +31,56 @@ const rfcChildren: NavItem[] = rfcsAPI.map((rfc) => ({
 const meetingMaterialsChildren: NavItem[] = meetingMaterialsAPI.map((doc) => {
   const { name, slug, children } = doc.data;
 
-  const mappedChildren = children?.map((child: any) => ({
-    label: child.name,
-    href: `/consortium-resources/meeting-materials/${slug}/${child.slug}`,
-  }));
+  const mappedChildren = children?.map(
+    (child: { name: string; slug: string }) => ({
+      label: child.name,
+      href: `/consortium-resources/meeting-materials/${slug}/${child.slug}`,
+    }),
+  );
 
   return {
     label: name,
     href: `/consortium-resources/meeting-materials/${slug}`,
-    children: mappedChildren && mappedChildren.length > 0 ? mappedChildren : undefined,
+    children:
+      mappedChildren && mappedChildren.length > 0 ? mappedChildren : undefined,
   };
 });
 
 const nav: NavItem[] = [
   {
-    label: "Consortium Resources",
-    href: "/consortium-resources",
+    label: 'Consortium Resources',
+    href: '/consortium-resources',
     exact: true,
   },
   {
-    label: "Meeting Materials",
-    href: "/consortium-resources/meeting-materials",
+    label: 'Meeting Materials',
+    href: '/consortium-resources/meeting-materials',
     children: meetingMaterialsChildren,
   },
   {
-    label: "RFCs",
-    href: "/consortium-resources/rfcs",
+    label: 'RFCs',
+    href: '/consortium-resources/rfcs',
     children: rfcChildren.length > 0 ? rfcChildren : undefined,
   },
   {
-    label: "Consortium New Member Form",
-    href: "/consortium-resources/new-member-form-page",
+    label: 'Consortium New Member Form',
+    href: '/consortium-resources/new-member-form-page',
   },
   {
-    label: "Consortium Onboarding Form",
-    href: "/consortium-resources/onboarding-form",
+    label: 'Consortium Onboarding Form',
+    href: '/consortium-resources/onboarding-form',
   },
   {
-    label: "Consortium Offboarding Form",
-    href: "/consortium-resources/consortium-offboarding",
+    label: 'Consortium Offboarding Form',
+    href: '/consortium-resources/consortium-offboarding',
   },
   {
-    label: "Publications and Engagement",
-    href: "/consortium-resources/publications",
+    label: 'Publications and Engagement',
+    href: '/consortium-resources/publications',
   },
   {
-    label: "BDC Branding",
-    href: "/consortium-resources/bdc-branding",
+    label: 'BDC Branding',
+    href: '/consortium-resources/bdc-branding',
   },
 ];
 
