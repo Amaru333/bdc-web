@@ -1,14 +1,15 @@
-import { GoogleAuth, type JWTInput } from "google-auth-library";
+import { GoogleAuth, type JWTInput } from 'google-auth-library';
 
-const DOCS_SCOPE = "https://www.googleapis.com/auth/documents.readonly";
-const SHEETS_READ_SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
-const SHEETS_WRITE_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
+const DOCS_SCOPE = 'https://www.googleapis.com/auth/documents.readonly';
+const SHEETS_READ_SCOPE =
+  'https://www.googleapis.com/auth/spreadsheets.readonly';
+const SHEETS_WRITE_SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
 
-export const GOOGLE_CREDENTIALS_ENV_VAR = "GOOGLE_CREDENTIALS_BASE64";
+export const GOOGLE_CREDENTIALS_ENV_VAR = 'GOOGLE_CREDENTIALS_BASE64';
 
 function parseCredentialsBase64(base64: string): JWTInput {
   try {
-    const json = Buffer.from(base64, "base64").toString("utf-8");
+    const json = Buffer.from(base64, 'base64').toString('utf-8');
     return JSON.parse(json) as JWTInput;
   } catch {
     throw new Error(
@@ -24,7 +25,9 @@ function parseCredentialsBase64(base64: string): JWTInput {
 export function resolveGoogleCredentials(credentialsBase64?: string): JWTInput {
   const base64 = credentialsBase64 ?? process.env[GOOGLE_CREDENTIALS_ENV_VAR];
   if (!base64) {
-    throw new Error(`Missing ${GOOGLE_CREDENTIALS_ENV_VAR} environment variable.`);
+    throw new Error(
+      `Missing ${GOOGLE_CREDENTIALS_ENV_VAR} environment variable.`,
+    );
   }
   return parseCredentialsBase64(base64);
 }
@@ -36,7 +39,9 @@ export function hasGoogleCredentials(credentialsBase64?: string): boolean {
 /**
  * Resolve credentials from a raw service account JSON object (e.g. read from a local file).
  */
-export function resolveGoogleCredentialsFromJson(credentials: JWTInput): JWTInput {
+export function resolveGoogleCredentialsFromJson(
+  credentials: JWTInput,
+): JWTInput {
   return credentials;
 }
 
@@ -45,15 +50,20 @@ type CredentialSource =
   | { credentials: JWTInput };
 
 function resolveCredentialInput(source?: CredentialSource): JWTInput {
-  if (source && "credentials" in source && source.credentials) {
+  if (source && 'credentials' in source && source.credentials) {
     return source.credentials;
   }
   return resolveGoogleCredentials(
-    source && "credentialsBase64" in source ? source.credentialsBase64 : undefined,
+    source && 'credentialsBase64' in source
+      ? source.credentialsBase64
+      : undefined,
   );
 }
 
-async function getAccessToken(scopes: string[], source?: CredentialSource): Promise<string> {
+async function getAccessToken(
+  scopes: string[],
+  source?: CredentialSource,
+): Promise<string> {
   const credentials = resolveCredentialInput(source);
   const auth = new GoogleAuth({
     credentials,
@@ -64,7 +74,7 @@ async function getAccessToken(scopes: string[], source?: CredentialSource): Prom
   const token = await client.getAccessToken();
 
   if (!token.token) {
-    throw new Error("Could not generate an access token for Google APIs.");
+    throw new Error('Could not generate an access token for Google APIs.');
   }
 
   return token.token;
@@ -91,11 +101,11 @@ export async function fetchGoogleDoc(
 
   const params = new URLSearchParams();
   if (includeTabsContent) {
-    params.set("includeTabsContent", "true");
+    params.set('includeTabsContent', 'true');
   }
 
   const query = params.toString();
-  const url = `https://docs.googleapis.com/v1/documents/${docId}${query ? `?${query}` : ""}`;
+  const url = `https://docs.googleapis.com/v1/documents/${docId}${query ? `?${query}` : ''}`;
 
   const response = await fetch(url, {
     headers: {
@@ -130,15 +140,15 @@ export async function fetchGoogleSheet(
   const params = new URLSearchParams();
   if (ranges?.length) {
     for (const range of ranges) {
-      params.append("ranges", range);
+      params.append('ranges', range);
     }
   }
   if (includeGridData) {
-    params.set("includeGridData", "true");
+    params.set('includeGridData', 'true');
   }
 
   const query = params.toString();
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}${query ? `?${query}` : ""}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}${query ? `?${query}` : ''}`;
 
   const response = await fetch(url, {
     headers: {
@@ -207,18 +217,21 @@ export async function resolveGoogleSheetTitleById(
     includeGridData: false,
   })) as GoogleSheetMetadata;
 
-  const title = meta.sheets?.find((sheet) => sheet.properties?.sheetId === sheetId)?.properties
-    ?.title;
+  const title = meta.sheets?.find(
+    (sheet) => sheet.properties?.sheetId === sheetId,
+  )?.properties?.title;
 
   if (!title) {
-    throw new Error(`Sheet with id ${sheetId} not found in spreadsheet ${spreadsheetId}.`);
+    throw new Error(
+      `Sheet with id ${sheetId} not found in spreadsheet ${spreadsheetId}.`,
+    );
   }
 
   return title;
 }
 
 function columnIndexToLetter(index: number): string {
-  let result = "";
+  let result = '';
   let n = index + 1;
   while (n > 0) {
     const rem = (n - 1) % 26;
@@ -228,9 +241,13 @@ function columnIndexToLetter(index: number): string {
   return result;
 }
 
-function buildSheetRangeA1(title: string, gridRange: GoogleSheetGridRange): string {
+function buildSheetRangeA1(
+  title: string,
+  gridRange: GoogleSheetGridRange,
+): string {
   const escapedTitle = `'${title.replace(/'/g, "''")}'`;
-  const { startRowIndex, endRowIndex, startColumnIndex, endColumnIndex } = gridRange;
+  const { startRowIndex, endRowIndex, startColumnIndex, endColumnIndex } =
+    gridRange;
 
   const hasBounds =
     startRowIndex !== undefined ||
@@ -250,7 +267,9 @@ function buildSheetRangeA1(title: string, gridRange: GoogleSheetGridRange): stri
   }
 
   const endCol =
-    endColumnIndex !== undefined ? columnIndexToLetter(endColumnIndex - 1) : startCol;
+    endColumnIndex !== undefined
+      ? columnIndexToLetter(endColumnIndex - 1)
+      : startCol;
   const endRow = endRowIndex !== undefined ? endRowIndex : undefined;
 
   if (endRow !== undefined) {
@@ -291,7 +310,11 @@ export async function fetchGoogleSheetValuesBySheetId(
     ...credentialOptions
   } = options;
 
-  const title = await resolveGoogleSheetTitleById(spreadsheetId, sheetId, credentialOptions);
+  const title = await resolveGoogleSheetTitleById(
+    spreadsheetId,
+    sheetId,
+    credentialOptions,
+  );
   const range = buildSheetRangeA1(title, {
     startRowIndex,
     endRowIndex,
@@ -303,7 +326,7 @@ export async function fetchGoogleSheetValuesBySheetId(
 }
 
 export type UpdateGoogleSheetValuesOptions = GoogleCredentialOptions & {
-  valueInputOption?: "RAW" | "USER_ENTERED";
+  valueInputOption?: 'RAW' | 'USER_ENTERED';
 };
 
 /**
@@ -315,7 +338,7 @@ export async function updateGoogleSheetValues(
   values: string[][],
   options: UpdateGoogleSheetValuesOptions = {},
 ): Promise<unknown> {
-  const { valueInputOption = "USER_ENTERED", ...credentialOptions } = options;
+  const { valueInputOption = 'USER_ENTERED', ...credentialOptions } = options;
   const token = await getAccessToken([SHEETS_WRITE_SCOPE], credentialOptions);
 
   const params = new URLSearchParams({
@@ -324,10 +347,10 @@ export async function updateGoogleSheetValues(
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}?${params}`;
 
   const response = await fetch(url, {
-    method: "PUT",
+    method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({ values }),
   });
@@ -354,10 +377,10 @@ export async function clearGoogleSheetRange(
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}:clear`;
 
   const response = await fetch(url, {
-    method: "POST",
+    method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({}),
   });
