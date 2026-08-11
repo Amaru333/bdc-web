@@ -5,6 +5,15 @@ on:
     branches: [main]
   push:
     branches: [main]
+  schedule:
+    # Weekly Monday 14:00 UTC — governance review of internal + external links
+    - cron: "0 14 * * 1"
+  workflow_dispatch:
+    inputs:
+      check_external:
+        description: "Also check external (http/https) links"
+        type: boolean
+        default: true
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -13,6 +22,7 @@ concurrency:
 jobs:
   lint:
     name: Lint
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -96,3 +106,95 @@ jobs:
       - name: Accessibility audit
         working-directory: apps/site
         run: node a11y/full.js
+
+  link_check_internal:
+    name: Internal links (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [site, consortium]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build ${{ matrix.app }}
+        run: npm run build -w @bdc/${{ matrix.app }}
+
+      - name: Check internal links
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          fail: false
+          format: markdown
+          output: lychee-${{ matrix.app }}-internal.md
+          args: >-
+            --config lychee.toml
+            --offline
+            --root-dir ${{ github.workspace }}/apps/${{ matrix.app }}/dist
+            --no-progress
+            'apps/${{ matrix.app }}/dist/**/*.html'
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lychee-${{ matrix.app }}-internal
+          path: lychee-${{ matrix.app }}-internal.md
+          if-no-files-found: ignore
+
+  link_check_external:
+    name: External links (${{ matrix.app }})
+    if: >-
+      github.event_name == 'schedule' ||
+      (github.event_name == 'workflow_dispatch' && inputs.check_external)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [site, consortium]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build ${{ matrix.app }}
+        run: npm run build -w @bdc/${{ matrix.app }}
+
+      - name: Check external links
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          fail: false
+          format: markdown
+          output: lychee-${{ matrix.app }}-external.md
+          args: >-
+            --config lychee.toml
+            --scheme https
+            --scheme http
+            --root-dir ${{ github.workspace }}/apps/${{ matrix.app }}/dist
+            --cache
+            --max-cache-age 2d
+            --no-progress
+            'apps/${{ matrix.app }}/dist/**/*.html'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lychee-${{ matrix.app }}-external
+          path: lychee-${{ matrix.app }}-external.md
+          if-no-files-found: ignore
