@@ -15,7 +15,7 @@ const news = defineCollection({
           'General Update',
           'Research Highlight',
           'Contributor Highlight',
-          'Monthly Update',
+          'Newsletter',
           'Release Notes',
         ])
         .default('General Update'),

@@ -16,8 +16,9 @@ const crumbs = [
 const { title, date, tags, updateType, heroImage, heroAlt } = frontmatter;
 
 const updateTypeCardText = {
-  'Monthly Update': `Read the latest monthly update, including recent ecosystem news, 
-    data updates, events, training opportunities, and reminders for the BDC community. This update opens in Mailchimp.`,
+  'Newsletter': `Read the latest newsletter, including recent ecosystem news, 
+    data updates, events, training opportunities, and reminders for the BDC community.
+    This newsletter opens in Mailchimp.`,
   'Release Notes': `The BDC release notes summarize recent updates across the BDC ecosystem, 
   including data availability, documentation, and platform functionality.`,
 };
@@ -47,7 +48,7 @@ const updateTypeCardText = {
         )}
 
       {
-        (updateType === "Monthly Update" || updateType === "Release Notes") && (
+        (updateType === "Newsletter" || updateType === "Release Notes") && (
           <div class="usa-card margin-top-4">
             <div class="usa-card__container">
               <div class="usa-card__body">
@@ -65,7 +66,7 @@ const updateTypeCardText = {
         </div>
 
         {
-          (updateType === "Monthly Update" || updateType === "Release Notes") && (
+          (updateType === "Newsletter" || updateType === "Release Notes") && (
             <EmailSignup/>
           )
         }

@@ -19,17 +19,51 @@ function toCalDate(d: Date): string {
 const start = toCalDate(date);
 const end = toCalDate(new Date((endDateValue ?? date).getTime() + 86400000));
 
-const params = new URLSearchParams({
+// Google Calendar
+const googleParams = new URLSearchParams({
   action: 'TEMPLATE',
   text: title,
   dates: `${start}/${end}`,
 });
-if (location) params.set('location', location);
 
-const calUrl = `https://calendar.google.com/calendar/render?${params.toString()}`;
+if (location) googleParams.set('location', location);
+
+const googleUrl = `https://calendar.google.com/calendar/render?${googleParams.toString()}`;
+
+// Outlook Calendar
+const outlookParams = new URLSearchParams({
+  path: '/calendar/action/compose',
+  rru: 'addevent',
+  subject: title,
+  startdt: date.toISOString(),
+  enddt: new Date((endDateValue ?? date).getTime() + 86400000).toISOString(),
+});
+
+if (location) outlookParams.set('location', location);
+
+const outlookUrl = `https://outlook.live.com/calendar/0/deeplink/compose?${outlookParams.toString()}`;
 ---
 
-<a href={calUrl} class="usa-link text-bold display-inline-flex flex-align-center" target="_blank" rel="noopener noreferrer">
-  <Icon name="calendar_today" size={3} class="margin-right-05" />
-  Add to Google Calendar
-</a>
+<div class="display-flex flex-wrap flex-align-center">
+  <a
+    href={googleUrl}
+    class="usa-link text-bold display-inline-flex flex-align-center"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Icon name="calendar_today" size={3} class="margin-right-05" />
+    Add to Google Calendar
+  </a>
+  <span class="margin-x-2 text-base-lighter">
+    |
+  </span>
+  <a
+    href={outlookUrl}
+    class="usa-link text-bold display-inline-flex flex-align-center"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <Icon name="calendar_today" size={3} class="margin-right-05" />
+    Add to Outlook Calendar
+  </a>
+</div>

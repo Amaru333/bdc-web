@@ -43,8 +43,10 @@ const past = allEvents.filter((e) => (e.data.end_date ?? e.data.date) < now);
     <div class="grid-container">
 
       <div class="display-flex flex-wrap flex-justify gap-1 margin-bottom-2">
-        <h2 class="font-heading-lg margin-0">Upcoming</h2>
-        <p class="margin-0 text-base-dark font-ui-sm">{upcoming.length} event{upcoming.length === 1 ? '' : 's'}</p>
+        <h2 class="font-heading-lg margin-0">Upcoming Events</h2>
+        <p class="margin-0 text-base-dark font-ui-sm">
+          {upcoming.length} upcoming event{upcoming.length === 1 ? '' : 's'}
+        </p>
       </div>
 
       <p class="usa-prose">Events denoted with

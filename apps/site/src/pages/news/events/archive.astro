@@ -36,9 +36,16 @@ const past = (await getCollection('events'))
 
   <section id="past-events" class="usa-section margin-x-auto padding-top-4">
     <div class="grid-container">
+      <div class="display-flex flex-wrap flex-justify gap-1 margin-bottom-2">
+        <h2 class="font-heading-lg margin-0">Event Archive</h2>
+        <p class="margin-0 text-base-dark font-ui-sm">
+          {past.length} archived event{past.length === 1 ? '' : 's'}
+        </p>
+      </div>
+
       <p class="usa-prose">Events denoted with
         <BdcHostedIndicator decorative size={20} class="text-baseline" />
-        were hosted by BDC.
+        are hosted by BDC.
       </p>
       <InlineAlert variant="info" heading="Don't see what you're looking for?">
         Check back soon as more materials are added.
