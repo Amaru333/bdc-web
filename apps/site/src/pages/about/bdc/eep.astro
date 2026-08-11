@@ -9,6 +9,7 @@ import { sortByLastName } from '../../../util/sort-by-lastName';
 
 // Fetch all EEP members
 const members = await getCollection('eep');
+const adHocMemberCount = members.filter((member) => member.data.adhoc).length;
 
 // Sort: alphabetical by last name, adhoc members last
 const sorted = sortByLastName(
@@ -33,9 +34,9 @@ const rendered = await Promise.all(
       <div class="usa-prose usa-prose--full-width">
         <StatCard
           icon="people"
-          number="7"
+          number={members.length - adHocMemberCount}
           qualifier="Panel Members"
-          meta="Plus 1 Ad-hoc Member"
+          meta={`Plus ${adHocMemberCount} Ad-hoc Member${adHocMemberCount === 1 ? '' : 's'}`}
           description="Independent experts advising NHLBI leadership on the BDC ecosystem"
           float="right"
           tone="cool"
