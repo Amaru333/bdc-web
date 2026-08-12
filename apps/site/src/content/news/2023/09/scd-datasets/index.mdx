@@ -16,8 +16,12 @@ excerpt: >
   cell disease also have an increased risk for strokes and problems during pregnancy.
 ---
 
+import ProfileCard from '@components/cards/ProfileCard.astro'
 import Figure from '@components/news/Figure.astro'
+import allisonImg from './AllisonGillaspy.jpg'
 import sidebarImg from './BDDEP_SC-Awareness-Month-Kit_Card-3_2022-08-17.jpg'
+import lisbethImg from './LisWelniak.jpg'
+import swetaImg from './SwetaLadwa.jpg'
 
 [Sickle cell disease](https://www.nhlbi.nih.gov/health/sickle-cell-disease) is an inherited red blood cell disorder that affects over 100,000 people in the United States. The disease is characterized by sickle-shaped (elongated) red blood cells and causes multiple complications such as episodic pain, susceptibility to infections, swelling in the hands and feet, and damage to blood vessels impacting multiple organs, including the eyes, bones, kidneys, heart, lungs, and brain. Individuals living with sickle cell disease also have an increased risk for strokes and problems during pregnancy.
 
@@ -49,11 +53,43 @@ BDC offers the sickle cell research community an improved ability to browse the 
 > There's a lot of opportunity for sickle cell disease researchers to look at this historical data in new ways using what's available on BDC.
   <span class="attribution">Sweta Ladwa, Chief of the Scientific Solutions Delivery Branch in the Information Technology and Applications Center at NHLBI and Data Management Lead for BDC</span>
 
+
 In fact, according to NHLBI Blood Division Program Officer Dr. Allison Gillaspy, these were key reasons the data was included in BDC. She explained that while the [Cure Sickle Cell Initiative Metadata Catalog](https://curesicklecell.rti.org/)  allows investigators to search through the curated data elements, it is at the meta-data level only, and BDC reaches scientists and researchers beyond just the Cure Sickle Cell Initiative. NHLBI wanted to allow researchers "to work in that cloud environment....and make these resources available to as many people as possible for as many different uses as they can come up with."
 
 The number of ingested datasets for sickle cell disease - among others - will only increase over time. Gillaspy echoed this idea, stating that the new inclusions relate to sickle cell disease, but "there are many clinical study datasets from current and historical NHLBI-funded research that NHLBI is working to make available within BDC."
 
 BDC is increasing researchers' access to key sickle cell data and providing them with enhanced analysis and collaboration capabilities to advance the research for improved treatments and additional cures that may help more people living with sickle cell disease. This has Ladwa hopeful for the future; "BDC has a variety of complementary data available in the ecosystem. There's a lot more that can be done to support sickle cell disease research in BDC by having different SCD data types (genomics, clinical, etc.) in one place, along with the tools and computational resources to scale analysis. We're always looking for feedback from the research community on data, tools, or apps to support researcher success in contributing to advances for better clinical outcomes."
+
+<ProfileCard
+  name="Sweta Ladwa"
+  role="Chief, Scientific Solutions Delivery Branch"
+  affiliation="NHLBI Information Technology and Applications Center (ITAC)"
+  image={swetaImg}
+  imageAlt="Sweta Ladwa"
+  summary="Sweta Ladwa has supported various U.S. Department of Health and Human Services entities to address use cases related to scientific data management, including standards, harmonization, and aggregation, as well as healthcare IT over the past decade. She currently serves as Chief, Scientific Solutions Delivery Branch in NHLBI ITAC and is the Data Management Lead for BDC's data science ecosystem, working with NHLBI-funded investigators, trans-NIH data science program leadership, and BDC developers to ensure data in BDC is optimized for broad scientific use. She also supports several trans-NIH initiatives, including COVID-19 RECOVER and the NIH Cloud Platform Interoperability (NCPI) programs."
+  tone="cool"
+/>
+
+<ProfileCard
+  name="Allison Gillaspy"
+  credentials="PhD"
+  role="Program Officer, Translational Blood Science and Resources Branch"
+  affiliation="Division of Blood Diseases and Resources, NHLBI"
+  image={allisonImg}
+  imageAlt="Allison Gillaspy"
+  summary="Allison Gillaspy, PhD, is a program officer in the Translational Blood Science and Resources Branch of the Division of Blood Diseases and Resources at NHLBI, part of NIH. Her expertise includes high-throughput whole genome sequencing, RNA-seq and transcriptomics, proteomics, bacterial pathogenesis, microbiome studies, and next-generation data analysis. She is involved with the Cure Sickle Cell Initiative as the Data Strategy Scientific Program Lead and is Program Director for the NHLBI Biological Specimen and Data Repository (BioLINCC) resource program."
+  tone="warm"
+/>
+
+<ProfileCard
+  name="Lisbeth A. Welniak"
+  credentials="PhD"
+  role="Program Director, Translational Biology Branch"
+  affiliation="Division of Blood Diseases and Resources, NHLBI"
+  image={lisbethImg}
+  imageAlt="Lisbeth A. Welniak"
+  summary="Lisbeth Welniak, PhD, is a program director in the Translational Biology Branch of the Division of Blood Diseases and Resources at NHLBI, part of NIH. She manages a portfolio of grants, fellowships, and cooperative agreements in basic and translational research areas focused on cellular therapies, consequences of hematopoietic stem cell transplantation, and basic and clinical immunobiology research in transfusion medicine. Welniak is also a Program Director for the NHLBI Biological Specimen and Data Repository (BioLINCC) resource program and the NHLBI Cure Sickle Cell Initiative."
+/>
 
 ---
 ### Learn More

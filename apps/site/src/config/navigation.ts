@@ -23,7 +23,7 @@ export const navConfig: NavItem[] = [
       { label: 'Analyze', href: '/data/analyze' },
       { label: 'Bring Your Own Tools', href: '/data/bring-your-own-tools' },
       {
-        label: 'BDC for Learning and Training',
+        label: 'Learning and Training',
         href: '/data/learning-and-training',
       },
     ],

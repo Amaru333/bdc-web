@@ -60,6 +60,12 @@ import BlockLink from '@components/link/BlockLink.astro'
 </BlockLink>
 ```
 
+When using profile-style components with images (for example `ProfileCard`), use this alt-text convention:
+
+- Default `imageAlt` to the person's full name.
+- Only add extra detail when needed to disambiguate (for example two people with the same name on one page).
+- Do not include decorative phrases like "photo of" unless editorially required.
+
 ---
 
 ## What Not To Do
@@ -68,4 +74,3 @@ import BlockLink from '@components/link/BlockLink.astro'
 * Do not modify layouts
 * Do not add client directives
 * Do not modify routing structure
-

@@ -1,8 +1,194 @@
 ---
-title: BDC for Learning and Training
-layout: ../../layouts/Page.astro
-in_page_nav: false
-
+title: Learning and Training
+layout: ../../layouts/MdxBase.astro
 ---
 
-Page content coming soon.
+import Button from '@bdc/ui-astro/button/Button.astro';
+import Card from '@bdc/ui-astro/card/Card.astro';
+import Hero from '@bdc/ui-astro/layout/Hero.astro';
+import Link from '@bdc/ui-astro/link/Link.astro';
+import TestonomialCard from '@components/cards/TestonomialCard.astro';
+import fayuanPhoto from '@content/headshots/dr-fayuan-wen.png';
+import katerinaPhoto from '@content/headshots/dr-katerina-kechris.png';
+import InPageNav from '@components/layout/InPageNav.astro';
+
+<Hero
+  title="Learning and Training"
+  description="Prepare researchers for modern, data-driven biomedical science"
+  primaryCta={{ label: 'Discuss Your Training Program', href: '/help/contact-bdc' }}
+>
+  <Card slot="visual" className="bg-primary text-white">
+    <div class="usa-prose maxw-none">
+      <p class="margin-0 font-sans-md text-base-dark line-height-sans-5">
+        Give students, trainees, and early-career investigators hands-on experience with real-world data,
+        cloud-based analysis, collaborative research environments, and reproducible workflows.
+      </p>
+      <p class="margin-top-2 margin-bottom-0 font-sans-sm text-base line-height-sans-5">
+        BDC can complement academic courses, NIH T32 and other institutional training programs, workshops,
+        and fellowships.
+      </p>
+    </div>
+  </Card>
+</Hero>
+
+<section class="usa-section padding-top-4">
+<div class="grid-container usa-prose usa-prose--full-width">
+<InPageNav>
+
+## Build practical research skills with BDC
+
+Modern biomedical researchers increasingly need to know how to work with large-scale data,
+computational tools, and reproducible analysis environments.
+
+BDC gives learners opportunities to develop those skills through hands-on experience.
+
+<div class="grid-row grid-gap-2 margin-y-3">
+  <div class="tablet:grid-col-12 desktop:grid-col-6 grid-gap-2 margin-bottom-2">
+    <Card variant="overview" class="height-full">
+      <span class="font-heading-md text-primary-dark">Work with biomedical data</span>
+
+      Introduce learners to large-scale biomedical datasets and the considerations involved in data-driven research.
+    </Card>
+  </div>
+  <div class="tablet:grid-col-12 desktop:grid-col-6 grid-gap-2 margin-bottom-2">
+    <Card variant="overview" class="height-full">
+      <span class="font-heading-md text-primary-dark">Build cloud-based research skills</span>
+
+      Give learners experience conducting analysis in cloud environments without relying entirely on local computing.
+    </Card>
+  </div>
+  <div class="tablet:grid-col-12 desktop:grid-col-6 grid-gap-2 margin-bottom-2">
+    <Card variant="overview" class="height-full">
+      <span class="font-heading-md text-primary-dark">Practice reproducible analysis</span>
+
+      Use computational tools, notebooks, and workflows to reinforce reproducible approaches to biomedical research.
+    </Card>
+  </div>
+  <div class="tablet:grid-col-12 desktop:grid-col-6 grid-gap-2 margin-bottom-2">
+    <Card variant="overview" class="height-full">
+      <span class="font-heading-md text-primary-dark">Learn collaboratively</span>
+
+      Support individual and collaborative research activities in shared cloud-based environments.
+    </Card>
+  </div>
+</div>
+
+## Support T32 and Institutional Training Programs
+
+### Extend your training environment with BDC
+BDC can complement the scientific and methodological training provided by T32 and other institutional
+programs with hands-on experience using biomedical data, cloud-based analysis environments, and
+reproducible computational workflows.
+
+Programs can incorporate BDC into an existing curriculum or use it for a focused learning experience.
+
+BDC may be a fit for:
+- NIH T32 programs
+- graduate and postdoctoral training programs
+- early-career investigator initiatives
+- summer research programs
+- cohort-based training
+- other institutional research training programs
+
+### Give trainees experience beyond the classroom
+Trainees can gain practical experience with large-scale biomedical data, cloud-based analysis
+environments, reproducible computational workflows, secondary data analysis, and collaborative
+research.
+<Link to="/help/contact-bdc" class="text-bold">Discuss your training program</Link>.
+
+## Courses & Workshops
+Bring cloud-based biomedical research into graduate or undergraduate courses, workshops, short modules,
+or other group learning experiences.
+
+BDC has supported instruction in cloud computing, genome-wide association studies, RNA-seq and genomic
+analysis, collaborative data analysis, and reproducible research workflows.
+<Link to="/help/contact-bdc" class="text-bold">Discuss Teaching with BDC</Link>.
+
+## Plan an experience that fits your program
+You do not need to start with a fully designed BDC curriculum. Start with your learning goals and
+timeframe, and our team can help determine how BDC can fit into the experience.
+
+1. **Tell us what you are planning**
+
+    Share your program, audience, learning objectives, approximate number of participants, and timeline.
+1. **Identify the right BDC experience**
+
+    Determine which BDC resources, platforms, tools, or learning activities align with your goals.
+1. **Prepare for the training**
+
+    Plan participant access, technical requirements, cloud costs, and instructional needs in advance.
+1. **Put BDC into practice**
+
+    Use BDC as part of a course, workshop, training module, cohort experience, or research activity.
+
+**Planning an academic course?** Contact BDC early; activities requiring coordinated
+technical or instructional support should generally begin planning at least one semester in advance.
+
+## BDC in Action
+
+### Bringing cloud computing into the classroom
+BDC has supported academic instruction that gives students hands-on experience with cloud-based
+biomedical analysis.
+
+<TestonomialCard
+  quote="BDC introduced students to cloud computing while making it easier for instructors to support collaboration and troubleshoot within a shared environment."
+  name="Dr. Fayuan Wen"
+  title="Assistant Professor, Department of Biology"
+  organization="Howard University"
+  photo={fayuanPhoto}
+  photoAlt="Dr. Fayuan Wen"
+/>
+<TestonomialCard
+  quote="Students appreciated being exposed to current approaches to GWAS and cloud-based analysis and gaining familiarity with platforms they may use in real-world research settings."
+  name="Dr. Katerina Kechris"
+  title="Professor and Associate Director of Data Science"
+  organization="Center for Innovative Design & Analysis, Department of Biostatistics & Informatics"
+  photo={katerinaPhoto}
+  photoAlt="Dr. Katerina Kechris"
+/>
+
+### Summer Institute in Statistical Genetics (SISG)
+BDC-Seven Bridges has been used in the [Bruce Weir Summer Institute in Statistical Genetics (SISG)](https://sisg.biosciences.gatech.edu/)
+Whole Genome Sequence Analysis Pipeline module to support hands-on instruction in cloud-based
+whole-genome sequence analysis workflows. Students learn how cloud ecosystems can support large-scale
+data analysis in a practical instructional setting.
+
+## Supporting Early Career Investigators
+BDC collaborates with fellowship and training programs that introduce early-career investigators to
+cloud-based biomedical research. These collaborations provide opportunities to gain experience using BDC
+resources while advancing scientific research.
+
+Selected fellowship-related collaborations and references are listed below.
+
+### NHLBI BDC Fellows Program
+
+From March 2020 through February 2022, the NHLBI BDC Fellows Program supported more than 45
+early-career researchers. Fellows advanced scientific research using BDC and provided feedback that
+helped inform development of the BDC ecosystem. Their work also contributed to some of the earliest
+BDC-enabled research.
+
+<Button to="/about/bdc/fellows" variant="outline">View the NHLBI BDC Fellows</Button>
+
+### TOPMed Fellowship Program
+The [NHLBI Trans-Omics for Precision Medicine](https://topmed.nhlbi.nih.gov/) (TOPMed) Fellowship Program
+provides training to early-career investigators, leveraging the TOPMed datasets and the BDC computing
+environment to conduct impactful precision medicine research.
+
+### AIM-AHEAD Research Fellowship
+The [AIM-AHEAD Research Fellowship](https://www.aim-ahead.net/programs/research-fellowship-program/)
+names BDC as a "dataset option" early-career researcher applicants from under-represented populations
+can use to actively participate in biomedical research that involves the use of artificial
+intelligence/machine learning methodologies.
+
+<Card variant="feature" class="margin-top-4 border-left-05 border-accent-cool padding-2 padding-bottom-6 bg-base-lightest">
+  ### Ready to bring BDC into your program?
+
+  Tell us about the researchers you are training, the skills you want them to build, and the
+  experience you are planning.
+
+  <Button to="/help/contact-bdc" variant="accent-cool">Discuss a Learning or Training Collaboration</Button>
+</Card>
+
+</InPageNav>
+</div>
+</section>
