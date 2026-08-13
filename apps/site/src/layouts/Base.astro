@@ -29,18 +29,8 @@ const displayTitle = title.includes("BioData Catalyst") ? title : `${title} | Bi
     <script src="/pagefind/pagefind-component-ui.js" type="module"></script>
     <ClientRouter />
     {enableRecaptcha && <script src={`https://www.google.com/recaptcha/api.js?render=${import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY}`} async defer />}
-    <style>
-      body {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
-      main {
-        flex: 1;
-      }
-    </style>
   </head>
-  <body data-pagefind-ignore>
+  <body data-pagefind-ignore class="display-flex flex-column minh-viewport">
     <a class="usa-skipnav" href="#main-content">Skip to main content</a>
     <SiteAlertList isHomePage={isHomePage} />
     <SiteHeader client:only="react" transition:persist />
@@ -59,9 +49,9 @@ const displayTitle = title.includes("BioData Catalyst") ? title : `${title} | Bi
                   <p class="pf-result-title">
                     <a class="pf-result-link" href="{{ meta.url | default(url) | safeUrl }}">{{ meta.title | default("Untitled") }}</a>
                   </p>
-                  <p style="margin: 0;">
-                    <span style="display: inline-block; margin-right: 0.5rem; padding: 0.125rem 0.45rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; line-height: 1.2; background: #e7f6fd; color: #005ea2;">News</span>
-                    <span style="display: inline-block; padding: 0.125rem 0.45rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; line-height: 1.2; background: #fef0c8; color: #8b4700;">Article</span>
+                  <p class="margin-0">
+                    <span class="display-inline-block margin-right-1 padding-x-1 padding-y-05 radius-pill font-body-2xs text-bold bg-base-lightest text-base-dark">News</span>
+                    <span class="display-inline-block padding-x-1 padding-y-05 radius-pill font-body-2xs text-bold bg-base-lightest text-base-dark">Article</span>
                   </p>
                   {{#if excerpt}}
                   <p class="pf-result-excerpt">{{+ excerpt +}}</p>
@@ -77,110 +67,10 @@ const displayTitle = title.includes("BioData Catalyst") ? title : `${title} | Bi
         <pagefind-keyboard-hints></pagefind-keyboard-hints>
       </pagefind-modal-footer>
     </pagefind-modal>
-    <main id="main-content" data-pagefind-body>
+    <main id="main-content" data-pagefind-body class="flex-1">
       <slot />
     </main>
     <SiteFooter />
-    <script is:inline>
-      const getSearchModal = () => document.querySelector('pagefind-modal[instance="site-modal"]');
-
-      const toTitleCase = (value) =>
-        value
-          .split(" ")
-          .filter(Boolean)
-          .map((word) => word[0].toUpperCase() + word.slice(1))
-          .join(" ");
-
-      const getBreadcrumbLabel = (href) => {
-        try {
-          const parsed = new URL(href, window.location.origin);
-          const segments = parsed.pathname.split("/").filter(Boolean);
-          if (segments.length === 0) return "";
-
-          return segments
-            .map((segment) => decodeURIComponent(segment))
-            .map((segment) => segment.replace(/\.[a-z0-9]+$/i, ""))
-            .map((segment) => segment.replace(/[-_]+/g, " "))
-            .map(toTitleCase)
-            .join(" > ");
-        } catch {
-          return "";
-        }
-      };
-
-      const upsertModalResultBreadcrumb = (link) => {
-        if (!(link instanceof HTMLAnchorElement)) return;
-
-        const breadcrumbLabel = getBreadcrumbLabel(link.href);
-        if (!breadcrumbLabel) return;
-
-        const resultContent = link.closest(".pf-result-content");
-        if (!resultContent) return;
-
-        let breadcrumb = resultContent.querySelector(".pf-result-breadcrumb");
-        if (!breadcrumb) {
-          breadcrumb = document.createElement("p");
-          breadcrumb.className = "pf-result-breadcrumb";
-          breadcrumb.style.margin = "0.35rem 0 0.5rem";
-          breadcrumb.style.color = "#565c65";
-          breadcrumb.style.fontSize = "0.9rem";
-          breadcrumb.style.fontWeight = "600";
-
-          const title = link.closest(".pf-result-title");
-          if (title?.parentNode) {
-            title.parentNode.insertBefore(breadcrumb, title.nextSibling);
-          } else {
-            resultContent.appendChild(breadcrumb);
-          }
-        }
-
-        if (breadcrumb.textContent !== breadcrumbLabel) {
-          breadcrumb.textContent = breadcrumbLabel;
-        }
-      };
-
-      const updateModalBreadcrumbs = () => {
-        document.querySelectorAll(".pf-result-link").forEach((link) => {
-          upsertModalResultBreadcrumb(link);
-        });
-      };
-
-      const initModalBreadcrumbObserver = () => {
-        const modal = getSearchModal();
-        if (!modal || modal.dataset.breadcrumbObserverReady) return;
-
-        modal.dataset.breadcrumbObserverReady = "true";
-        const observer = new MutationObserver(updateModalBreadcrumbs);
-        observer.observe(modal, { childList: true, subtree: true });
-      };
-
-      window.bdcGetBreadcrumbLabel = getBreadcrumbLabel;
-
-      const openSearchModal = () => {
-        const modal = getSearchModal();
-        if (!modal || typeof modal.open !== "function") return;
-        modal.open();
-      };
-
-      const handleSearchModalEnter = (event) => {
-        if (event.key !== "Enter" || event.isComposing) return;
-        const target = event.target;
-        if (!(target instanceof HTMLInputElement)) return;
-
-        const modal = getSearchModal();
-        if (!modal?.contains(target)) return;
-
-        const query = target.value.trim();
-        if (!query) return;
-
-        event.preventDefault();
-        window.location.href = `/search?q=${encodeURIComponent(query)}`;
-      };
-
-      window.addEventListener("bdc:open-search-modal", openSearchModal);
-      document.addEventListener("keydown", handleSearchModalEnter);
-      initModalBreadcrumbObserver();
-      updateModalBreadcrumbs();
-    </script>
+    <script src="../scripts/init-search-modal.ts"></script>
   </body>
 </html>
