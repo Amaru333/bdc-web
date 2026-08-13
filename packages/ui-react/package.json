@@ -1,0 +1,29 @@
+{
+  "name": "@bdc/ui-react",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared React UI components for BDC apps",
+  "files": [
+    "src"
+  ],
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "dependencies": {
+    "@trussworks/react-uswds": "^11.0.0"
+  },
+  "exports": {
+    "./accordion/Accordion": "./src/accordion/Accordion.tsx",
+    "./banner/GovBanner": "./src/banner/GovBanner.tsx",
+    "./button/Button": "./src/button/Button.tsx",
+    "./card/Card": "./src/card/Card.tsx",
+    "./icon/Icon": "./src/icon/Icon.tsx",
+    "./link/Link": "./src/link/Link.tsx",
+    "./modal/useDataAttributeModalController": "./src/modal/useDataAttributeModalController.ts",
+    "./tag/RemovableTagPill": "./src/tag/RemovableTagPill.tsx",
+    "./tag/Tag": "./src/tag/Tag.tsx",
+    "./tooltip/InfoTooltip": "./src/tooltip/InfoTooltip.tsx",
+    "./tooltip/Tooltip": "./src/tooltip/Tooltip.tsx"
+  }
+}

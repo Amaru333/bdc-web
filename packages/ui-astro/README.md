@@ -1,0 +1,27 @@
+# @bdc/ui-astro
+
+Shared Astro UI components for BDC apps.
+
+## Components
+
+- `@bdc/ui-astro/alert/InlineAlert.astro`
+- `@bdc/ui-astro/alert/SiteAlert.astro`
+- `@bdc/ui-astro/button/Button.astro`
+- `@bdc/ui-astro/tag/Badge.astro`
+- `@bdc/ui-astro/tag/Tag.astro`
+- `@bdc/ui-astro/icon/Icon.astro`
+- `@bdc/ui-astro/icon/IconBadge.astro`
+- `@bdc/ui-astro/layout/Hero.astro`
+- `@bdc/ui-astro/layout/PageSection.astro`
+- `@bdc/ui-astro/layout/TwoColumnSection.astro`
+- `@bdc/ui-astro/link/Link.astro`
+- `@bdc/ui-astro/card/Card.astro`
+- `@bdc/ui-astro/card/CardCta.astro`
+- `@bdc/ui-astro/card/CardCopy.astro`
+- `@bdc/ui-astro/card/CardMediaStack.astro`
+- `@bdc/ui-astro/card/StatCard.astro`
+
+## Notes
+
+- Components are presentational and receive all content via props.
+- Components use USWDS utility classes and depend on the app's USWDS/theme setup.

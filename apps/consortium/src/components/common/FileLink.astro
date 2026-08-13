@@ -42,9 +42,19 @@ const ICONS = {
 };
 
 const icon = type ? ICONS[type] : undefined;
+const hasIcon = Boolean(icon);
+const isExternal = /^https?:\/\//i.test(href);
 ---
 
-<a href={href} class="usa-link display-inline-flex flex-align-center text-no-underline hover:text-underline padding-y-1" target="_blank" rel="noopener noreferrer">
+<a
+  href={href}
+  class:list={[
+    "usa-link text-no-underline hover:text-underline",
+    hasIcon ? "display-inline-flex flex-align-center padding-y-1" : "display-inline",
+  ]}
+  target={isExternal ? "_blank" : undefined}
+  rel={isExternal ? "noopener noreferrer" : undefined}
+>
   {icon && <Image src={icon} alt={`${type} icon`} class="width-3 height-4 flex-no-shrink margin-right-2" />}
-  <span><slot /></span>
+  {hasIcon ? <span><slot /></span> : <slot />}
 </a>

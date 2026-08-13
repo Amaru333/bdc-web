@@ -1,0 +1,49 @@
+---
+interface Props {
+  variant: 'info' | 'warning' | 'success' | 'error' | 'emergency';
+  slim?: boolean;
+  noIcon?: boolean;
+  heading?: string;
+  headingLevel?: 2 | 3 | 4;
+}
+
+const {
+  variant,
+  slim = false,
+  noIcon = false,
+  heading,
+  headingLevel = 3,
+} = Astro.props;
+
+const classes = [
+  'usa-alert',
+  `usa-alert--${variant}`,
+  'margin-y-3',
+  slim && 'usa-alert--slim',
+  noIcon && 'usa-alert--no-icon',
+]
+  .filter(Boolean)
+  .join(' ');
+
+const Heading = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
+const headingId = heading
+  ? `inline-alert-heading-${crypto.randomUUID()}`
+  : undefined;
+---
+
+{heading ? (
+  <section class={classes} aria-labelledby={headingId}>
+    <div class="usa-alert__body">
+      <Heading id={headingId} class="usa-alert__heading">{heading}</Heading>
+      <div class="usa-alert__text">
+        <slot />
+      </div>
+    </div>
+  </section>
+) : (
+  <div class={classes} role="status">
+    <div class="usa-alert__body">
+      <slot />
+    </div>
+  </div>
+)}

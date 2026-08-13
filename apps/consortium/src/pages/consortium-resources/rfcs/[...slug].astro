@@ -1,29 +1,75 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
-import FileLink from '@components/common/FileLink.astro';
+import { getCollection, getEntry } from 'astro:content';
+import MarkdownContent from '@components/common/MarkdownContent.astro';
 import Directory from '@layouts/Directory.astro';
 
-interface Props {
-  entry: CollectionEntry<'rfcs'>;
-}
-
 export async function getStaticPaths() {
-  const rfcs = await getCollection('rfcs');
-  return rfcs.map((entry) => ({
-    params: { slug: entry.id },
-    props: { entry },
-  }));
+  const tabs = await getCollection('rfcs-api');
+
+  return tabs.flatMap((tab) => {
+    const parentSlug = tab.id;
+    const paths = [{ params: { slug: parentSlug } }];
+
+    const childPaths = (tab.data.children ?? [])
+      .filter((child) => Boolean(child.slug))
+      .map((child) => ({
+        params: { slug: `${parentSlug}/${child.slug}` },
+      }));
+
+    return [...paths, ...childPaths];
+  });
 }
 
-const { entry } = Astro.props;
-const { Content } = await render(entry);
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/404');
+
+const [tabSlug, childSlug] = slug.split('/');
+
+const tabEntry = await getEntry('rfcs-api', tabSlug);
+if (!tabEntry) return Astro.redirect('/404');
+
+let currentData = tabEntry.data;
+const isParent = !childSlug;
+
+if (!isParent) {
+  const childMatch = tabEntry.data.children?.find(
+    (child) => child.slug === childSlug,
+  );
+  if (!childMatch) return Astro.redirect('/404');
+  currentData = childMatch;
+}
+
+const children =
+  isParent && tabEntry.data.children?.length
+    ? [...tabEntry.data.children]
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((child) => ({
+          title: child.name,
+          href: `/consortium-resources/rfcs/${tabSlug}/${child.slug}`,
+        }))
+    : [];
 ---
 
-<Directory title={entry.data.title}>
+<Directory title={currentData.name}>
   <div>
-    <h1>{entry.data.title}</h1>
-    {entry.data.description && <p class="text-base text-gray-50">{entry.data.description}</p>}
+    <h1>{currentData.name}</h1>
 
-    <Content components={{ a: FileLink }} />
+    {
+      isParent && children.length > 0 ? (
+        <div>
+          <ul class="usa-list">
+            {children.map((child) => (
+              <li>
+                <a href={child.href} class="usa-link">
+                  {child.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <MarkdownContent content={currentData.content} />
+      )
+    }
   </div>
 </Directory>

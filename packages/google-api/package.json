@@ -1,0 +1,13 @@
+{
+  "name": "@bdc/google-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared utilities for fetching Google Docs and Sheets API data",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "google-auth-library": "^10.6.2"
+  }
+}

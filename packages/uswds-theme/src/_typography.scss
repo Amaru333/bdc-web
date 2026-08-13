@@ -1,6 +1,7 @@
 $theme-font-type-sans: "public-sans";
 $theme-font-type-serif: "merriweather";
 $theme-font-type-mono: "roboto-mono";
+$theme-font-path: "/fonts";
 
 $theme-font-role-heading: "serif";
 $theme-font-role-body: "sans";
@@ -15,3 +16,5 @@ $theme-h3-font-size: "lg";
 $theme-font-weight-light: 300;
 $theme-font-weight-normal: 400;
 $theme-font-weight-bold: 700;
+
+$theme-global-link-styles: true;

@@ -2,18 +2,25 @@ import { defineCollection, z } from 'astro:content';
 import { readFile } from 'node:fs/promises';
 import { glob } from 'astro/loaders';
 import { load as loadYaml } from 'js-yaml';
+import { loadGoogleDocTabs } from './utils/loadGoogleDocTabs';
+import { loadMembersFromSheet } from './utils/loadMembersFromSheet';
+
+const GOOGLE_DOC_TABS_SCHEMA = z.lazy(() =>
+  z.object({
+    id: z.string().optional(),
+    name: z.string(),
+    slug: z.string(),
+    content: z.string(),
+    order: z.number().optional(),
+    children: z.array(z.any()).optional(),
+  }),
+);
+
+const MEETING_MATERIALS_DOC_ID = '1og0MLu2YJ6W66LXcP53Y4K6B0289xYSfVt6LYV3hnKc';
+const RFCS_DOC_ID = '1jXCKx5szHtAtH1eQsBtzeVA8VdSdBIB_Wa2BWgetj8E';
 
 const members = defineCollection({
-  loader: async () => {
-    const text = await readFile('./src/content/members.yaml', 'utf-8');
-    const items = loadYaml(text) as Array<Record<string, unknown>>;
-    return items
-      .filter((item) => item.hideFromDirectory !== true)
-      .map((item, i) => {
-        const id = String(item.id ?? i + 1);
-        return { id, ...item, idValue: id };
-      });
-  },
+  loader: async () => loadMembersFromSheet(),
   schema: z.object({
     idValue: z.string(),
     hideFromDirectory: z.boolean().optional(),
@@ -94,25 +101,14 @@ const bams = defineCollection({
   }),
 });
 
-const rfcs = defineCollection({
-  loader: glob({ pattern: '**/*.mdx', base: './src/content/rfcs' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    order: z.number().default(0),
-  }),
+const meetingMaterialsAPI = defineCollection({
+  loader: async () => loadGoogleDocTabs(MEETING_MATERIALS_DOC_ID),
+  schema: GOOGLE_DOC_TABS_SCHEMA,
 });
 
-const meetingMaterials = defineCollection({
-  loader: glob({
-    pattern: '**/*.mdx',
-    base: './src/content/meeting-materials',
-  }),
-  schema: z.object({
-    title: z.string(),
-    parent: z.string().optional(),
-    order: z.number().default(0),
-  }),
+const rfcsAPI = defineCollection({
+  loader: async () => loadGoogleDocTabs(RFCS_DOC_ID),
+  schema: GOOGLE_DOC_TABS_SCHEMA,
 });
 
 export const collections = {
@@ -120,6 +116,6 @@ export const collections = {
   'working-groups': workingGroups,
   'recurring-meetings': recurringMeetings,
   bams,
-  rfcs,
-  'meeting-materials': meetingMaterials,
+  'meeting-materials-api': meetingMaterialsAPI,
+  'rfcs-api': rfcsAPI,
 };

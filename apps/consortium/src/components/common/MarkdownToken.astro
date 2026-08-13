@@ -1,0 +1,72 @@
+---
+import FileLink from '@components/common/FileLink.astro';
+import Self from '@components/common/MarkdownToken.astro';
+import type { Token, Tokens } from 'marked';
+
+interface Props {
+  token: Token;
+}
+
+const { token } = Astro.props;
+---
+
+{
+  token.type === "space" ? null : token.type === "hr" ? (
+    <hr />
+  ) : token.type === "heading" ? (
+    (() => {
+      const Tag = `h${token.depth}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+      return (
+        <Tag>
+          {token.tokens?.map((t) => <Self token={t} />) ?? token.text}
+        </Tag>
+      );
+    })()
+  ) : token.type === "paragraph" ? (
+    <p>{token.tokens?.map((t) => <Self token={t} />) ?? token.text}</p>
+  ) : token.type === "blockquote" ? (
+    <blockquote>{token.tokens?.map((t) => <Self token={t} />)}</blockquote>
+  ) : token.type === "list" ? (
+    token.ordered ? (
+      <ol class="usa-list">
+        {token.items.map((item: Tokens.ListItem) => (
+          <li>{item.tokens?.map((t) => <Self token={t} />)}</li>
+        ))}
+      </ol>
+    ) : (
+      <ul class="usa-list">
+        {token.items.map((item: Tokens.ListItem) => (
+          <li>{item.tokens?.map((t) => <Self token={t} />)}</li>
+        ))}
+      </ul>
+    )
+  ) : token.type === "code" ? (
+    <pre>
+      <code>{token.text}</code>
+    </pre>
+  ) : token.type === "html" ? (
+    <Fragment set:html={token.text} />
+  ) : token.type === "text" ? (
+    token.tokens?.length ? (
+      token.tokens.map((t) => <Self token={t} />)
+    ) : (
+      token.text
+    )
+  ) : token.type === "strong" ? (
+    <strong>{token.tokens?.map((t) => <Self token={t} />) ?? token.text}</strong>
+  ) : token.type === "em" ? (
+    <em>{token.tokens?.map((t) => <Self token={t} />) ?? token.text}</em>
+  ) : token.type === "del" ? (
+    <del>{token.tokens?.map((t) => <Self token={t} />) ?? token.text}</del>
+  ) : token.type === "codespan" ? (
+    <code>{token.text}</code>
+  ) : token.type === "link" ? (
+    <FileLink href={token.href}>{token.tokens?.map((t) => <Self token={t} />) ?? token.text}</FileLink>
+  ) : token.type === "image" ? (
+    <img src={token.href} alt={token.text} />
+  ) : token.type === "br" ? (
+    <br />
+  ) : token.type === "escape" ? (
+    token.text
+  ) : null
+}

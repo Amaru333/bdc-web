@@ -10,37 +10,39 @@ type NavItem = {
   children?: NavItem[];
 };
 
-const materials = await getCollection('meeting-materials');
-const rfcs = await getCollection('rfcs');
+const meetingMaterialsAPI = await getCollection('meeting-materials-api');
+const rfcsAPI = (await getCollection('rfcs-api')).sort(
+  (a, b) => (a.data.order ?? 0) - (b.data.order ?? 0),
+);
 
-const materialParents = materials
-  .filter((m) => !m.data.parent)
-  .sort((a, b) => b.data.order - a.data.order);
+const rfcChildren: NavItem[] = rfcsAPI.map((rfc) => ({
+  label: rfc.data.name,
+  href: `/consortium-resources/rfcs/${rfc.data.slug}`,
+  children: rfc.data.children?.length
+    ? [...rfc.data.children]
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((child: { name: string; slug: string }) => ({
+          label: child.name,
+          href: `/consortium-resources/rfcs/${rfc.data.slug}/${child.slug}`,
+        }))
+    : undefined,
+}));
 
-const rfcChildren: NavItem[] = rfcs
-  .sort((a, b) => a.data.order - b.data.order)
-  .map((rfc) => ({
-    label: rfc.data.title,
-    href: `/consortium-resources/rfcs/${rfc.id}`,
-  }));
+const meetingMaterialsChildren: NavItem[] = meetingMaterialsAPI.map((doc) => {
+  const { name, slug, children } = doc.data;
 
-const meetingMaterialsChildren: NavItem[] = materialParents.map((parent) => {
-  const children = materials
-    .filter(
-      (m) =>
-        m.data.parent === parent.id ||
-        m.data.parent === parent.id.split('/')[0],
-    )
-    .sort((a, b) => a.data.order - b.data.order)
-    .map((child) => ({
-      label: child.data.title,
-      href: `/consortium-resources/meeting-materials/${child.id}`,
-    }));
+  const mappedChildren = children?.map(
+    (child: { name: string; slug: string }) => ({
+      label: child.name,
+      href: `/consortium-resources/meeting-materials/${slug}/${child.slug}`,
+    }),
+  );
 
   return {
-    label: parent.data.title,
-    href: `/consortium-resources/meeting-materials/${parent.id}`,
-    children: children.length > 0 ? children : undefined,
+    label: name,
+    href: `/consortium-resources/meeting-materials/${slug}`,
+    children:
+      mappedChildren && mappedChildren.length > 0 ? mappedChildren : undefined,
   };
 });
 

@@ -1,0 +1,118 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Card from '@bdc/ui-astro/card/Card.astro';
+import Icon from '@bdc/ui-astro/icon/Icon.astro';
+import Link from '@bdc/ui-astro/link/Link.astro';
+import Tag from '@bdc/ui-astro/tag/Tag.astro';
+import BdcHostedIndicator from '@components/events/BdcHostedIndicator.astro';
+import CalendarDate from '@components/events/CalendarDate.astro';
+
+interface Props {
+  items: CollectionEntry<'events'>[];
+}
+
+const { items } = Astro.props;
+
+const materialIcons: Record<string, string> = {
+  recording: 'youtube',
+  slides: 'file_present',
+  forum: 'forum',
+};
+
+const byYear = items.reduce(
+  (acc, event) => {
+    const year = event.data.date.getFullYear();
+    if (!acc[year]) acc[year] = [];
+    acc[year].push(event);
+    return acc;
+  },
+  {} as Record<number, CollectionEntry<'events'>[]>,
+);
+
+const years = Object.keys(byYear)
+  .map(Number)
+  .sort((a, b) => b - a);
+---
+
+{years.map((year) => (
+  <section class="margin-top-4">
+    <h2 class="font-heading-lg margin-bottom-2">{year}</h2>
+
+    <ul class="add-list-reset margin-0 padding-0">
+      {byYear[year].map((event) => {
+        const { title, date, externalEvent, materials, time, eventType } = event.data;
+        
+        return (
+          <li class="margin-bottom-2">
+            <Card variant="panel">
+              <div class="grid-row grid-gap-1 tablet:grid-gap-2">
+                <div class="tablet:grid-col-auto">
+                  <CalendarDate date={date} class="margin-top-0" />
+                </div>
+
+                <div class="tablet:grid-col-fill">
+                  <div class="display-flex flex-wrap flex-align-center flex-justify margin-bottom-1">
+                    <div class="font-sans-xs text-bold text-base margin-0">
+                      {date.toLocaleDateString('en-US', {
+                        month: 'long', day: 'numeric', year: 'numeric',
+                      })}
+                      {time && <> &middot; {time}</>}
+                    </div>
+                    <div class="display-flex flex-align-center">
+                      {eventType && (
+                        <Tag label={eventType} tone="neutral" />
+                      )}
+                      {!externalEvent && (
+                        <BdcHostedIndicator decorative class="margin-left-1" />
+                      )}
+                    </div>
+                  </div>
+
+                  <div class="display-flex flex-wrap flex-align-center gap-1 margin-bottom-1">
+                    <h3 class="font-heading-sm tablet:font-heading-md line-height-heading-2 margin-0">
+                      <Link to={`/news/events/${event.id}/`} class="text-no-underline hover:text-underline">
+                        {title}
+                      </Link>
+                    </h3>
+                  </div>
+
+                  <div class="display-flex flex-justify margin-top-2 flex-wrap gap-2 flex-align-center">
+                    {(materials && materials.length > 0) ? (
+                      <div class="display-flex flex-wrap gap-1 margin-top-1">
+                        {
+                          materials.map(
+                            (material: {
+                              type: string;
+                              url: string;
+                              label: string;
+                            }) => (
+                              <a
+                                href={material.url}
+                                class="usa-link display-flex flex-align-center font-sans-xs"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Icon
+                                  name={materialIcons[material.type] ?? 'link'}
+                                  size={3}
+                                  aria-hidden="true"
+                                />
+                                <span class="margin-left-05">{material.label}</span>
+                              </a>
+                            ),
+                          )
+                        }
+                      </div>
+                    ) : <span />}
+                    <Link to={`/news/events/${event.id}/`} class="text-bold">View details &raquo;</Link>
+                  </div>
+
+                </div>
+              </div>
+            </Card>
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+))}
