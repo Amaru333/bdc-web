@@ -1,0 +1,120 @@
+---
+import Icon from '../icon/Icon.astro';
+
+interface Props {
+  variant?: 'info' | 'emergency';
+  slim?: boolean;
+  title?: string;
+  headingLevel?: 'h2' | 'h3' | 'h4';
+  ariaLabel?: string;
+  storageKey: string;
+}
+
+const {
+  variant = 'info',
+  slim = false,
+  title,
+  headingLevel: HeadingTag = 'h3',
+  ariaLabel = 'Site alert',
+  storageKey,
+} = Astro.props;
+
+const alertId = `site-alert-${storageKey}`;
+
+const containerClasses = [
+  'usa-site-alert',
+  'bdc-site-alert',
+  `usa-site-alert--${variant}`,
+  slim && 'usa-site-alert--slim',
+  !title && 'usa-site-alert--no-heading',
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<section
+  class={containerClasses}
+  aria-label={ariaLabel}
+  id={alertId}
+  data-site-alert-id={alertId}
+>
+  <div class="usa-alert">
+    <div class="usa-alert__body position-relative">
+      {title && (
+        <HeadingTag class="usa-alert__heading padding-right-2">
+          {title}
+        </HeadingTag>
+      )}
+      <div class="usa-alert__text">
+        <slot />
+      </div>
+      <button
+        class="bdc-site-alert__close usa-button usa-button--unstyled padding-05 position-absolute top-1 right-1"
+        aria-label="Dismiss alert"
+        type="button"
+        data-site-alert-close
+      >
+        <Icon name="close" aria-hidden="true" />
+      </button>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const INIT_FLAG = '__bdcSiteAlertInit';
+
+    const syncDismissedAlerts = () => {
+      document.querySelectorAll('[data-site-alert-id]').forEach((alertEl) => {
+        const alertId = alertEl.getAttribute('data-site-alert-id');
+        if (!alertId) {
+          return;
+        }
+
+        if (sessionStorage.getItem(alertId) === 'dismissed') {
+          alertEl.remove();
+        }
+      });
+    };
+
+    const handleDismissClick = (event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+      const closeButton = event.target.closest('[data-site-alert-close]');
+      if (!closeButton) {
+        return;
+      }
+
+      const alertEl = closeButton.closest('[data-site-alert-id]');
+      const alertId = alertEl?.getAttribute('data-site-alert-id');
+      if (!alertId) {
+        return;
+      }
+
+      sessionStorage.setItem(alertId, 'dismissed');
+      alertEl?.remove();
+    };
+
+    const ensureInit = () => {
+      if (window[INIT_FLAG]) {
+        return;
+      }
+
+      document.addEventListener('click', handleDismissClick);
+      document.addEventListener('astro:after-swap', syncDismissedAlerts);
+      window[INIT_FLAG] = true;
+    };
+
+    ensureInit();
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', syncDismissedAlerts, {
+        once: true,
+      });
+    } else {
+      syncDismissedAlerts();
+    }
+  })();
+</script>

@@ -1,0 +1,94 @@
+---
+/**
+ *
+ * Renders a single EEP member with headshot, name, roles, term start, and bio.
+ * Always renders a left column — shows headshot if provided, empty spacer if not.
+ * Adhoc members are labeled inline with their name.
+ * Stacks vertically on mobile, side by side on tablet and above.
+ * Bio content is passed via slot and can be any markdown/HTML content.
+ *
+ * Props:
+ *   name       — Member name (e.g. "First Last")
+ *   signifier  — Optional credentials (e.g. "Ph.D., M.D.")
+ *   slug       — Used as the section's anchor id
+ *   roles      — Array of freeform role/org strings
+ *   term_start — Date object for term start date
+ *   photo      — Optional resolved ImageMetadata. If omitted, a spacer maintains layout.
+ *   adhoc      — If true, prepends "Ad-hoc Member:" to the name. Defaults to false.
+ */
+
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  name: string;
+  signifier?: string;
+  slug?: string;
+  roles: string[];
+  term_start: Date;
+  photo?: ImageMetadata;
+  adhoc?: boolean;
+}
+
+const {
+  name,
+  signifier,
+  slug,
+  roles,
+  term_start,
+  photo,
+  adhoc = false,
+} = Astro.props;
+
+const formattedDate = term_start.toLocaleDateString('en-US', {
+  month: 'long',
+  year: 'numeric',
+});
+
+const bioId = `eep-member-bio-${slug ?? name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+---
+
+<article class="eep-member-anchor padding-0" id={slug}>
+  <div class="grid-row grid-gap-3">
+    <div class="grid-col-12 tablet:grid-col-4 desktop:grid-col-3 margin-bottom-4 tablet:margin-bottom-0">
+      <div class="margin-bottom-2 minh-15 display-flex flex-align-center flex-justify-center">
+        {photo && (
+          <Image src={photo} alt={name} width={176} height={176} class="radius-pill width-card height-card" />
+        )}
+      </div>
+
+      <div class="padding-y-1 text-center font-sans-2xs">
+        <p class="text-base-dark margin-0">Term Start</p>
+        <p class="text-bold margin-top-05 margin-bottom-0">{formattedDate}</p>
+      </div>
+    </div>
+
+    <div class="grid-col-12 tablet:grid-col-8 desktop:grid-col-9">
+      <h3 class="margin-top-0 margin-bottom-2 font-heading-lg">
+        {adhoc && 'Ad-hoc Member: '}
+        {name}{signifier && <span class="text-base">, {signifier}</span>}
+      </h3>
+
+      <ul class="usa-list usa-list--unstyled font-sans-sm">
+        {roles.map((role) => <li>- {role}</li>)}
+      </ul>
+
+      <details class="margin-top-2" open={false}>
+        <summary class="bg-base-lightest hover:bg-base-light padding-1 text-bold text-primary-dark cursor-pointer">Bio</summary>
+        <div id={bioId} class="bg-base-lightest usa-prose usa-prose--full-width font-sans-sm line-height-sans-5 padding-x-2 padding-y-05">
+          <slot />
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+</article>
+
+<a href="#top" class="display-block margin-top-2 margin-bottom-3 text-right font-sans-2xs">↑ Return to top</a>
+
+<style>
+  .eep-member-anchor {
+    scroll-margin-top: 110px;
+  }
+</style>

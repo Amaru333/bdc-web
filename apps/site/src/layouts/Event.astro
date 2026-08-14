@@ -1,5 +1,9 @@
 ---
 import { Image } from 'astro:assets';
+import InlineAlert from '@bdc/ui-astro/alert/InlineAlert.astro';
+import Card from '@bdc/ui-astro/card/Card.astro';
+import Icon from '@bdc/ui-astro/icon/Icon.astro';
+import Link from '@bdc/ui-astro/link/Link.astro';
 import Breadcrumbs from '@components/Breadcrumbs.astro';
 import AddToCalendar from '@components/events/AddToCalendar.astro';
 import EventHeader from '@components/events/EventHeader.astro';
@@ -8,12 +12,33 @@ import Base from '@layouts/Base.astro';
 const { frontmatter } = Astro.props;
 
 const crumbs = [
-  { label: 'Events', href: '/updates/events/' },
+  { label: 'Events', href: '/news/events/' },
   { label: frontmatter.title },
 ];
+const materialIcons: Record<string, string> = {
+  recording: 'youtube',
+  slides: 'file_present',
+  forum: 'forum',
+};
+const {
+  title,
+  date,
+  end_date,
+  time,
+  location,
+  url,
+  registration_required,
+  eventType,
+  tags,
+  externalEvent,
+  heroImage,
+  heroAlt,
+  materials,
+} = frontmatter;
 
-const { title, date, end_date, time, location, url, tags, heroImage, heroAlt } =
-  frontmatter;
+const now = new Date();
+const eventEnd = end_date ?? date;
+const isPast = eventEnd < now;
 ---
 
 <Base title={title}>
@@ -24,6 +49,15 @@ const { title, date, end_date, time, location, url, tags, heroImage, heroAlt } =
 
         <Breadcrumbs items={crumbs} />
 
+        {isPast && (
+          <InlineAlert variant="success" noIcon>
+            <strong>This event has concluded</strong>
+            <p>
+              Recordings, slides, and related materials are provided below when available. 
+            </p>
+          </InlineAlert>
+        )}
+
         <EventHeader
           title={title}
           date={date}
@@ -32,24 +66,52 @@ const { title, date, end_date, time, location, url, tags, heroImage, heroAlt } =
           location={location}
           url={url}
           tags={tags}
+          registration_required={registration_required}
+          eventType={eventType}
+          externalEvent={externalEvent}
+          isPast={isPast}
         />
 
-        <AddToCalendar
-          title={title}
-          date={date}
-          endDate={end_date}
-          location={location}
-        />
+        {!isPast && (
+          <p class="margin-top-0 margin-bottom-2">
+            <AddToCalendar
+              title={title}
+              date={date}
+              endDate={end_date}
+              location={location}
+            />
+          </p>
+        )}
 
         {heroImage && (
           <Image
             src={heroImage}
             alt={heroAlt || ''}
-            class="event__hero"
+            class="width-full height-auto margin-y-2 radius-md"
           />
         )}
 
-        <div class="event__content">
+        {materials && materials.length > 0 && (
+          <div class="margin-top-2">
+            <Card variant="panel">
+              <h2 class="font-heading-sm margin-top-0 margin-bottom-1">Event Materials</h2>
+              <div class="display-flex flex-wrap gap-1">
+                {materials.map((material: { type: string; url: string; label: string }) => (
+                  <Link to={material.url} class="display-inline-flex flex-align-center font-sans-xs">
+                    <Icon
+                      name={materialIcons[material.type] ?? 'link'}
+                      aria-hidden="true"
+                      class="margin-right-05"
+                    />
+                    {material.label}
+                  </Link>
+                ))}
+              </div>
+            </Card>
+          </div>
+        )}
+
+        <div class="line-height-sans-5 margin-top-3">
           <slot />
         </div>
 
@@ -58,18 +120,3 @@ const { title, date, end_date, time, location, url, tags, heroImage, heroAlt } =
   </section>
 
 </Base>
-
-<style>
-  .event__content {
-    line-height: 1.5;
-    margin-top: 2rem;
-  }
-
-  .event__hero {
-    width: 100%;
-    height: auto;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    border-radius: 4px;
-  }
-</style>

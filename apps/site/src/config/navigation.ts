@@ -19,21 +19,22 @@ export const navConfig: NavItem[] = [
     items: [
       { label: 'Explore', href: '/data/explore' },
       { label: 'Share', href: '/data/share' },
-      {
-        label: 'Impute',
-        href: 'https://imputation.biodatacatalyst.nhlbi.nih.gov/#!',
-        external: true,
-      },
+      { label: 'Impute', href: '/data/impute' },
       { label: 'Analyze', href: '/data/analyze' },
+      { label: 'Bring Your Own Tools', href: '/data/bring-your-own-tools' },
+      {
+        label: 'BDC for Learning and Training',
+        href: '/data/learning-and-training',
+      },
     ],
   },
   {
     label: 'News',
     items: [
-      { label: 'Latest Updates', href: '/updates/latest-updates' },
-      { label: 'News Coverage', href: '/updates/news-coverage' },
-      { label: 'BDC-Enabled Research', href: '/updates/bdc-enabled-research' },
-      { label: 'Events', href: '/updates/events' },
+      { label: 'Latest Updates', href: '/news/latest-updates' },
+      { label: 'News Coverage', href: '/news/news-coverage' },
+      { label: 'BDC-Enabled Research', href: '/news/bdc-enabled-research' },
+      { label: 'Events', href: '/news/events' },
     ],
   },
   {
@@ -44,10 +45,10 @@ export const navConfig: NavItem[] = [
         href: 'https://bdcatalyst.gitbook.io/biodata-catalyst-documentation',
         external: true,
       },
-      { label: 'Contact & Support', href: '/support/contact-and-support' },
-      { label: 'Usage Costs', href: '/resources/costs' },
-      { label: 'Terms of Use', href: '/resources/terms' },
-      { label: 'FAQs', href: '/resources/faqs' },
+      { label: 'Contact & Support', href: '/help/contact-and-support' },
+      { label: 'Usage Costs', href: '/help/costs' },
+      { label: 'Terms of Use', href: '/help/terms' },
+      { label: 'FAQs', href: '/help/faqs' },
     ],
   },
 ];

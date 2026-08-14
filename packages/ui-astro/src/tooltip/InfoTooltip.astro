@@ -1,0 +1,31 @@
+---
+import Icon from '../icon/Icon.astro';
+import Tooltip from './Tooltip.astro';
+
+interface Props {
+  text: string;
+  position?: 'top' | 'bottom' | 'left' | 'right';
+  icon?: string;
+  class?: string;
+}
+
+const {
+  text,
+  position = 'top',
+  icon = 'info_outline',
+  class: className,
+} = Astro.props;
+---
+
+<Tooltip
+  text={text}
+  position={position}
+  class={[
+    'bg-transparent border-0 padding-0 cursor-pointer text-primary-dark display-inline-flex flex-align-center',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')}
+>
+  <Icon name={icon} size={2} />
+</Tooltip>

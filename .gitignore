@@ -4,11 +4,13 @@
 node_modules
 dist
 .astro
-.env
-.env.*
+**/.env
+**/.env.*
 test-results
 !.env.example
 
 # apps/freshdesk
 Pipfile
 Pipfile.lock
+
+.lycheecache

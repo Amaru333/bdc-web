@@ -1,0 +1,72 @@
+---
+import Link from '@bdc/ui-astro/link/Link.astro';
+import Base from '@layouts/Base.astro';
+---
+
+<Base title="Contact & Support">
+  <section class="usa-section">
+    <div class="grid-container">
+      <div class="grid-row">
+        <div class="grid-col-12">
+
+          <h1>Contact & Support</h1>
+          
+          <p class="usa-intro">
+            Find technical help, documentation, live support, or the right contact 
+            for your question.
+          </p>
+
+          <p class="usa-hint margin-bottom-3">
+            Not sure where to start? Use <strong>Get Help</strong> for problems using BDC. Use <strong>Contact BDC</strong> for general questions, partnerships, and collaboration inquiries.
+          </p>
+
+          <div class="usa-prose margin-top-6">
+
+            <h2>Get Help</h2>
+
+            <p>
+              Report an access problem, error, platform issue, suspected bug, or other blocker affecting your use of BDC.
+            </p>
+
+            <Link to="/help/get-help">Get Help →</Link>
+
+            <h2>Contact BDC</h2>
+            <p>
+              Contact the BDC team about partnerships, collaborations, communications, or other general inquiries that are not technical-support requests
+            </p>
+            <Link to="/help/contact-bdc">
+              Contact BDC →
+            </Link>
+
+            <h2>Find Answers</h2>
+            <p>
+              Browse documentation and tutorials to learn how to work in BDC.
+            </p>
+            <Link to="/help/documentation">
+              Go to BDC documentation →
+            </Link>
+
+
+
+            <h2>Join Office Hours</h2>
+            <p>
+              Bring questions to a live drop-in session with BDC-Seven Bridges for everything from getting started to workflow integration to cost estimation. 
+            </p>
+            <h3>BDC-Seven Bridges Office Hours</h3>
+            <ul>
+              <li>Tuesdays, 10:00 - 11:00 am ET</li>
+              <li>Thursdays, 2:00 - 3:00 pm ET</li>
+            </ul>
+            
+            <p>
+              Sessions are held over Google Meet using the following link: <Link to="https://meet.google.com/kbs-ojnj-dcg">https://meet.google.com/kbs-ojnj-dcg</Link>
+            </p>
+
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

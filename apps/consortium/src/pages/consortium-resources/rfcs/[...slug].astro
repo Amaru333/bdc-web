@@ -1,10 +1,10 @@
 ---
-import MarkdownContent from "@components/common/MarkdownContent.astro";
-import Directory from "@layouts/Directory.astro";
-import { getCollection, getEntry } from "astro:content";
+import { getCollection, getEntry } from 'astro:content';
+import MarkdownContent from '@components/common/MarkdownContent.astro';
+import Directory from '@layouts/Directory.astro';
 
 export async function getStaticPaths() {
-  const tabs = await getCollection("rfcs-api");
+  const tabs = await getCollection('rfcs-api');
 
   return tabs.flatMap((tab) => {
     const parentSlug = tab.id;
@@ -21,19 +21,21 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-if (!slug) return Astro.redirect("/404");
+if (!slug) return Astro.redirect('/404');
 
-const [tabSlug, childSlug] = slug.split("/");
+const [tabSlug, childSlug] = slug.split('/');
 
-const tabEntry = await getEntry("rfcs-api", tabSlug);
-if (!tabEntry) return Astro.redirect("/404");
+const tabEntry = await getEntry('rfcs-api', tabSlug);
+if (!tabEntry) return Astro.redirect('/404');
 
 let currentData = tabEntry.data;
 const isParent = !childSlug;
 
 if (!isParent) {
-  const childMatch = tabEntry.data.children?.find((child) => child.slug === childSlug);
-  if (!childMatch) return Astro.redirect("/404");
+  const childMatch = tabEntry.data.children?.find(
+    (child) => child.slug === childSlug,
+  );
+  if (!childMatch) return Astro.redirect('/404');
   currentData = childMatch;
 }
 
@@ -42,9 +44,9 @@ const children =
     ? [...tabEntry.data.children]
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         .map((child) => ({
-        title: child.name,
-        href: `/consortium-resources/rfcs/${tabSlug}/${child.slug}`,
-      }))
+          title: child.name,
+          href: `/consortium-resources/rfcs/${tabSlug}/${child.slug}`,
+        }))
     : [];
 ---
 

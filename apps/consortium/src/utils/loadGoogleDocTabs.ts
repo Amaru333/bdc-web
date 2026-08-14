@@ -1,16 +1,22 @@
-import { fetchGoogleDoc, hasGoogleCredentials } from "@bdc/google-api";
-import { parseNestedMarkdownTabs, type NestedDocTab } from "./parseJson";
+import { fetchGoogleDoc, hasGoogleCredentials } from '@bdc/google-api';
+import {
+  type DocsDocument,
+  type NestedDocTab,
+  parseNestedMarkdownTabs,
+} from './parseJson';
 
 export type GoogleDocTabEntry = NestedDocTab & { id: string };
 
-export async function loadGoogleDocTabs(docId: string): Promise<GoogleDocTabEntry[]> {
+export async function loadGoogleDocTabs(
+  docId: string,
+): Promise<GoogleDocTabEntry[]> {
   if (!hasGoogleCredentials()) {
-    console.warn("Missing Google API creds.");
+    console.warn('Missing Google API creds.');
     return [];
   }
 
   try {
-    const doc = await fetchGoogleDoc(docId);
+    const doc = (await fetchGoogleDoc(docId)) as DocsDocument;
     const formattedMarkdown = parseNestedMarkdownTabs(doc);
 
     return formattedMarkdown.map((tab, index) => ({

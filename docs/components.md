@@ -50,6 +50,13 @@ src/components/
 
 ```
 
+Dependency boundary:
+
+- App code should import React UI primitives from `@bdc/ui-react`, not directly from `@trussworks/react-uswds`.
+- `@bdc/ui-react` should provide thin wrappers over Trussworks components where available.
+- If a needed primitive does not exist yet, add it to `@bdc/ui-react` first, then use it in app code.
+- This boundary allows swapping the underlying USWDS React library later with minimal app-level changes.
+
 ---
 
 ## Component Decision Tree
@@ -66,7 +73,7 @@ Does USWDS provide static HTML?
 
 Does `@trussworks/react-uswds` provide it?
 
-- Yes → Use it
+- Yes → Add/use a thin wrapper in `@bdc/ui-react`, then consume that wrapper in app code
 - No → Build custom React component
 
 ---
@@ -84,11 +91,34 @@ Before creating any component:
 
 ## Styling Rules
 
-- Prefer USWDS classes
+- Prefer USWDS utility classes first (`margin-*`, `padding-*`, `text-*`, `line-height-*`, `text-ls-*`, `border-*`, `shadow-*`, `display-*`, `flex-*`, `grid-*`)
 - Avoid global CSS
 - Scope custom styles to components
 - Do not override USWDS core styles
 
+### Utility-First Rule
+
+Before adding custom CSS, confirm the style cannot be expressed with existing USWDS utilities.
+
+Custom CSS is allowed only for cases utilities do not cover well, such as:
+
+- Layered gradients or atmospheric backgrounds
+- Decorative pseudo-elements and custom artwork
+- Complex motion/state treatments
+- Highly specialized visual compositions
+
+If a declaration is utility-eligible, use utilities instead of custom CSS.
+
+Common conversions:
+
+- `letter-spacing` -> `text-ls-*`
+- `line-height` -> `line-height-*`
+- `box-shadow` -> `shadow-*`
+- basic spacing/color/border/layout -> corresponding USWDS utility classes
+
+PR review check:
+
+- "Did we use USWDS utilities where available before adding custom CSS?"
+
 
 This becomes your guardrail document for PR reviews.
-

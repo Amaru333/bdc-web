@@ -1,10 +1,10 @@
 ---
-import MarkdownContent from "@components/common/MarkdownContent.astro";
-import Directory from "@layouts/Directory.astro";
-import { getCollection, getEntry } from "astro:content";
+import { getCollection, getEntry } from 'astro:content';
+import MarkdownContent from '@components/common/MarkdownContent.astro';
+import Directory from '@layouts/Directory.astro';
 
 export async function getStaticPaths() {
-  const tabs = await getCollection("meeting-materials-api");
+  const tabs = await getCollection('meeting-materials-api');
 
   return tabs.flatMap((tab) => {
     const parentSlug = tab.id;
@@ -21,26 +21,31 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-if (!slug) return Astro.redirect("/404");
-if (slug.startsWith("fonts/") || slug.startsWith("img/")) {
+if (!slug) return Astro.redirect('/404');
+if (slug.startsWith('fonts/') || slug.startsWith('img/')) {
   return new Response(null, { status: 404 });
 }
 
-const [parentSlug, childSlug] = slug.split("/");
+const [parentSlug, childSlug] = slug.split('/');
 
-const parentEntry = await getEntry("meeting-materials-api", parentSlug);
-if (!parentEntry) return Astro.redirect("/404");
+const parentEntry = await getEntry('meeting-materials-api', parentSlug);
+if (!parentEntry) return Astro.redirect('/404');
 
 let currentData = parentEntry.data;
 const isParent = !childSlug;
 
 if (!isParent) {
-  const childMatch = parentEntry.data.children?.find((child) => child.slug === childSlug);
-  if (!childMatch) return Astro.redirect("/404");
+  const childMatch = parentEntry.data.children?.find(
+    (child) => child.slug === childSlug,
+  );
+  if (!childMatch) return Astro.redirect('/404');
   currentData = childMatch;
 }
 
-const year = parentEntry.data.name.match(/\d{4}/)?.[0] ?? parentSlug.match(/^\d{4}$/)?.[0] ?? "";
+const year =
+  parentEntry.data.name.match(/\d{4}/)?.[0] ??
+  parentSlug.match(/^\d{4}$/)?.[0] ??
+  '';
 
 const children =
   isParent && parentEntry.data.children?.length

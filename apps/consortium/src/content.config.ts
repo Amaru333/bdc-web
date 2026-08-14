@@ -1,9 +1,9 @@
-import { defineCollection, z } from "astro:content";
-import { readFile } from "node:fs/promises";
-import { glob } from "astro/loaders";
-import { load as loadYaml } from "js-yaml";
-import { loadGoogleDocTabs } from "./utils/loadGoogleDocTabs";
-import { loadMembersFromSheet } from "./utils/loadMembersFromSheet";
+import { defineCollection, z } from 'astro:content';
+import { readFile } from 'node:fs/promises';
+import { glob } from 'astro/loaders';
+import { load as loadYaml } from 'js-yaml';
+import { loadGoogleDocTabs } from './utils/loadGoogleDocTabs';
+import { loadMembersFromSheet } from './utils/loadMembersFromSheet';
 
 const GOOGLE_DOC_TABS_SCHEMA = z.lazy(() =>
   z.object({
@@ -16,8 +16,8 @@ const GOOGLE_DOC_TABS_SCHEMA = z.lazy(() =>
   }),
 );
 
-const MEETING_MATERIALS_DOC_ID = "1og0MLu2YJ6W66LXcP53Y4K6B0289xYSfVt6LYV3hnKc";
-const RFCS_DOC_ID = "1jXCKx5szHtAtH1eQsBtzeVA8VdSdBIB_Wa2BWgetj8E";
+const MEETING_MATERIALS_DOC_ID = '1og0MLu2YJ6W66LXcP53Y4K6B0289xYSfVt6LYV3hnKc';
+const RFCS_DOC_ID = '1jXCKx5szHtAtH1eQsBtzeVA8VdSdBIB_Wa2BWgetj8E';
 
 const members = defineCollection({
   loader: async () => loadMembersFromSheet(),
@@ -60,10 +60,10 @@ const members = defineCollection({
 });
 
 const workingGroups = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/working-groups" }),
+  loader: glob({ pattern: '**/*.md', base: './src/content/working-groups' }),
   schema: z.object({
     title: z.string(),
-    status: z.string().default("active"),
+    status: z.string().default('active'),
     charter: z.string().url().optional(),
     drive: z.string().url().optional(),
     agenda: z.string().url().optional(),
@@ -72,7 +72,10 @@ const workingGroups = defineCollection({
 
 const recurringMeetings = defineCollection({
   loader: async () => {
-    const text = await readFile("./src/content/recurring-meetings.yaml", "utf-8");
+    const text = await readFile(
+      './src/content/recurring-meetings.yaml',
+      'utf-8',
+    );
     const items = loadYaml(text) as Array<Record<string, unknown>>;
     return items.map((item, i) => ({ id: String(i), ...item }));
   },
@@ -86,7 +89,7 @@ const recurringMeetings = defineCollection({
 });
 
 const bams = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/bams" }),
+  loader: glob({ pattern: '**/*.md', base: './src/content/bams' }),
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
@@ -110,9 +113,9 @@ const rfcsAPI = defineCollection({
 
 export const collections = {
   members,
-  "working-groups": workingGroups,
-  "recurring-meetings": recurringMeetings,
+  'working-groups': workingGroups,
+  'recurring-meetings': recurringMeetings,
   bams,
-  "meeting-materials-api": meetingMaterialsAPI,
-  "rfcs-api": rfcsAPI,
+  'meeting-materials-api': meetingMaterialsAPI,
+  'rfcs-api': rfcsAPI,
 };
