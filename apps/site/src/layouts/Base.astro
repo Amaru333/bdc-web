@@ -6,6 +6,8 @@ import { ModalController } from '@components/layout/ModalController';
 import SiteAlertList from '@components/layout/SiteAlertList.astro';
 import SiteFooter from '@components/layout/SiteFooter.astro';
 import { SiteHeader } from '@components/layout/SiteHeader';
+import SearchResultEnhancementTemplates from '@components/search/SearchResultEnhancementTemplates.astro';
+import SearchResultTemplates from '@components/search/SearchResultTemplates.astro';
 import '../styles/global.scss';
 
 interface Props {
@@ -14,9 +16,10 @@ interface Props {
   // Scopes the reCAPTCHA script to only pages that need it,
   // avoiding unnecessary Google script loading sitewide.
   enableRecaptcha?: boolean;
+  indexForSearch?: boolean;
 }
 
-const { title, enableRecaptcha = false } = Astro.props;
+const { title, enableRecaptcha = false, indexForSearch = true } = Astro.props;
 const isHomePage = Astro.url.pathname === '/';
 const displayTitle = title.includes('BioData Catalyst')
   ? title
@@ -61,40 +64,22 @@ const hasGtm = typeof gtmId === 'string' && gtmId.length > 0;
     <SiteHeader client:load transition:persist />
     <ExitNoticeController client:only="react" />
     <ModalController client:only="react" />
+    <SearchResultEnhancementTemplates />
     <pagefind-modal instance="site-modal" reset-on-close>
       <pagefind-modal-header>
-        <pagefind-input></pagefind-input>
+        <pagefind-input instance="site-modal"></pagefind-input>
       </pagefind-modal-header>
       <pagefind-modal-body>
-        <pagefind-summary></pagefind-summary>
-        <pagefind-results>
-          <Fragment
-            set:html={`<script type="text/pagefind-template">
-            <li class="pf-result">
-              <div class="pf-result-card">
-                <div class="pf-result-content">
-                  <p class="pf-result-title">
-                    <a class="pf-result-link" href="{{ meta.url | default(url) | safeUrl }}">{{ meta.title | default("Untitled") }}</a>
-                  </p>
-                  <p class="margin-0">
-                    <span class="display-inline-block margin-right-1 padding-x-1 padding-y-05 radius-pill font-body-2xs text-bold bg-base-lightest text-base-dark">News</span>
-                    <span class="display-inline-block padding-x-1 padding-y-05 radius-pill font-body-2xs text-bold bg-base-lightest text-base-dark">Article</span>
-                  </p>
-                  {{#if excerpt}}
-                  <p class="pf-result-excerpt">{{+ excerpt +}}</p>
-                  {{/if}}
-                </div>
-              </div>
-            </li>
-          </script>`}
-          />
+        <pagefind-summary instance="site-modal"></pagefind-summary>
+        <pagefind-results instance="site-modal">
+          <SearchResultTemplates />
         </pagefind-results>
       </pagefind-modal-body>
       <pagefind-modal-footer>
-        <pagefind-keyboard-hints></pagefind-keyboard-hints>
+        <pagefind-keyboard-hints instance="site-modal"></pagefind-keyboard-hints>
       </pagefind-modal-footer>
     </pagefind-modal>
-    <main id="main-content" data-pagefind-body class="flex-1">
+    <main id="main-content" data-pagefind-body={indexForSearch || undefined} class="flex-1">
       <slot />
     </main>
     <SiteFooter />

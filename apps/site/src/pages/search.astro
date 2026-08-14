@@ -2,7 +2,7 @@
 import Base from '@layouts/Base.astro';
 ---
 
-<Base title="Search Results">
+<Base title="Search Results" indexForSearch={false}>
   <section class="usa-section">
     <div class="grid-container">
       <h1>Search Results</h1>
@@ -14,3 +14,16 @@ import Base from '@layouts/Base.astro';
   <script src="/pagefind/pagefind-ui.js" is:inline></script>
   <script src="../scripts/init-search-results.ts"></script>
 </Base>
+
+<style is:global>
+  #search-results .pagefind-ui__result-title .pagefind-ui__result-link {
+    color: #005ea2;
+  }
+
+  #search-results .search-result-breadcrumb {
+    font-size: 0.81rem;
+    font-weight: 300;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+</style>
