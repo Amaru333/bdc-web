@@ -117,10 +117,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Detect changed applications
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        if: github.event_name == 'push' && github.ref != 'refs/heads/main'
         id: changes
         uses: dorny/paths-filter@v3
         with:
+          # On branch pushes, inspect only files included in this push instead of
+          # every change accumulated on the branch since it diverged from main.
+          base: ${{ github.event.before }}
           filters: |
             site:
               - 'apps/site/**'
@@ -133,7 +136,6 @@ jobs:
               - '.nvmrc'
               - 'lychee.toml'
               - 'scripts/check-links.mjs'
-              - '.github/workflows/ci.yaml'
             consortium:
               - 'apps/consortium/**'
               - 'packages/google-api/**'
@@ -143,7 +145,6 @@ jobs:
               - '.nvmrc'
               - 'lychee.toml'
               - 'scripts/check-links.mjs'
-              - '.github/workflows/ci.yaml'
             docs:
               - 'apps/docs/**'
               - 'packages/uswds-theme/**'
@@ -152,15 +153,15 @@ jobs:
               - '.nvmrc'
               - 'lychee.toml'
               - 'scripts/check-links.mjs'
-              - '.github/workflows/ci.yaml'
 
       - name: Select applications
         id: apps
         env:
           EVENT_NAME: ${{ github.event_name }}
+          GIT_REF: ${{ github.ref }}
           CHANGED_APPS: ${{ steps.changes.outputs.changes }}
         run: |
-          if [[ "$EVENT_NAME" == "schedule" || "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          if [[ "$EVENT_NAME" == "pull_request" || "$GIT_REF" == "refs/heads/main" || "$EVENT_NAME" == "schedule" || "$EVENT_NAME" == "workflow_dispatch" ]]; then
             echo 'value=["site","consortium","docs"]' >> "$GITHUB_OUTPUT"
           else
             echo "value=${CHANGED_APPS:-[]}" >> "$GITHUB_OUTPUT"
