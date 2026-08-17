@@ -1,69 +1,161 @@
 ---
-title: Analyze Data
-layout: ../../../layouts/Page.astro
+title: Analyze Data in BDC
+layout: ../../../layouts/MdxBase.astro
 ---
 import Button from '@bdc/ui-astro/button/Button.astro';
+import Hero from '@bdc/ui-astro/layout/Hero.astro';
+import IconBadge from '@bdc/ui-astro/icon/IconBadge.astro';
 import Link from '@bdc/ui-astro/link/Link.astro';
+import InPageNav from '@components/layout/InPageNav.astro';
 
-## About Analyzing Data in BDC
+<Hero
+  eyebrow="BDC Workspaces"
+  title="Analyze Data in BDC"
+  description="Analyze BDC-hosted data, data you bring to BDC, consortium data available to authorized members, or a combination of eligible resources in secure cloud environments. BDC provides scalable computing, analysis tools, and collaborative environments for working with large biomedical datasets."
+  primaryCta={{ label: 'Start with BDC-Seven Bridges', href: '#start-with-bdc-seven-bridges' }}
+  secondaryCta={{ label: 'Compare Analysis Platforms', href: '#compare-bdc-analysis-platforms' }}
+/>
 
-Researchers can analyze BDC-hosted data (visit the [Explore Data in BDC webpage](/use-bdc/explore) to learn more), data they upload to BDC (Bring Your Own Data or BYOD), or a combination of both.
+<section class="usa-section padding-top-4">
+<div class="grid-container">
+<InPageNav>
 
-## Understanding Usage Costs
+# Why Analyze Data in BDC?
 
-BDC users incur costs for computation, storage of uploaded or imported data (BYOD),
-storage of derived results (including egress costs for downloads of derived data),
-and file transfers. Read more about [BDC Usage Costs](/resources/usage-costs).
+**Work with data in the cloud**  
+Analyze eligible data without downloading and maintaining separate local copies. You do not pay for storage of BDC-hosted data. 
 
-## Prepare to Analyze Data
+**Scale computing to your research**  
+Select computing resources based on the size and complexity of your analysis, and adjust them as your research needs change.
 
-BDC workspaces offer private, secure environments for running analyses at scale.
-BDC also has RStudio, Jupyterlab, and SAS Notebooks built directly into the platform.
+**Use familiar tools and workflows**  
+Work in interactive environments, use existing applications and reusable workflows, or bring your own tools.
 
-**All users can find and access open-access hosted data on BDC. Researchers with approved data access requests (DARs) and an eRA Commons account can also access controlled-access data and use that data in analyses.** Researchers bringing their own data should refer to [Bring Your Own Data](#bring-your-own-data-byod) below.
+**Collaborate securely**  
+Organize data, tools, and results in a controlled environment where you can work with authorized collaborators.
 
-- To use a BDC workspace for the first time, users must create an account and at least one 
-project. [Create an account from this 
-webpage](https://accounts.sb.biodatacatalyst.nhlbi.nih.gov/auth/login?next=https%3A%2F%2Faccounts.sb.biodatacatalyst.nhlbi.nih.gov%2Foauth2%2Fauthorization%3Fresponse_type%3Dcode%26client_id%3D74735b722c33498cb981b6b6e24f659f%26redirect_uri%3Dhttps%253A%252F%252Fplatform.sb.biodatacatalyst.nhlbi.nih.gov%252Foauth2%252Fredirect%26state%3DNf8ffCyv90SV3fM1I33IfLt9OYPsQ0%26client_next%3Dhttps%253A%252F%252Fplatform.sb.biodatacatalyst.nhlbi.nih.gov%252F%26scope%3Dopenid%26nonce%3D173653215059824939581701286549) 
-using instructions in the workspace [Getting started 
-guide](https://sb-biodatacatalyst.readme.io/docs/getting-started). A billing group is required to 
-create a workspace, and BDC users begin incurring costs when they store Bring Your Own Data and/or 
-compute using Bring Your Own Data or BDC-hosted data.
-- Researchers who [already have a BDC workspace account can go to this webpage](https://accounts.sb.biodatacatalyst.nhlbi.nih.gov/auth/login?next=https%3A%2F%2Faccounts.sb.biodatacatalyst.nhlbi.nih.gov%2Foauth2%2Fauthorization%3Fresponse_type%3Dcode%26client_id%3D74735b722c33498cb981b6b6e24f659f%26redirect_uri%3Dhttps%253A%252F%252Fplatform.sb.biodatacatalyst.nhlbi.nih.gov%252Foauth2%252Fredirect%26state%3D1EkV3YBKf68zTItMe1DoVVZJePnUMs%26client_next%3Dhttps%253A%252F%252Fplatform.sb.biodatacatalyst.nhlbi.nih.gov%252F%26scope%3Dopenid%26nonce%3D151170011845002108041701286760), click "Log in with eRA Commons," and enter their eRA credentials.
+<div class="display-flex flex-justify-center flex-align-center margin-top-2 margin-bottom-0">
+  <IconBadge icon="attach_money" tone="cool" class="margin-right-1" />
+  <Link to="/help/costs" class="text-bold">Learn about usage costs and funding options</Link>.
+</div>
 
-## Build a Cohort for Analysis (Optional)
 
-To build a cohort for analysis using data available in BDC, researchers must have eRA Commons credentials and approved data access requests from dbGaP for each dataset they want to use to build the cohort. See the "Requirements for Accessing BDC Hosted Data" section on the [Explore Data in BDC webpage](/use-bdc/explore) for more information.
+# What Data Can You Analyze?
 
-Users building cohorts will see exact counts and can import the selected data into a BDC workspace. The ["Select and Package Data" section in the BDC documentation](https://bdcatalyst.gitbook.io/biodata-catalyst-documentation/written-documentation/explore-available-data/pic-sure-for-biodata-catalyst-user-guide/pic-sure-open-access-vs.-pic-sure-authorized-access/search-authorized-access\#select-and-package-data+) provides more information about importing a cohort to a BDC workspace.
+## BDC-Hosted Data
 
-<Button to="https://picsure.biodatacatalyst.nhlbi.nih.gov/login" className="GTM-button" id="cohort-analysis">Build a Cohort for Analysis</Button>
+Analyze open-access data or controlled-access data for which you have the required approvals.  
+Eligible BDC-hosted datasets can be found through BDC’s data exploration tools. Depending on the dataset and your access, you may be able to select files, build a cohort, and connect data to an analysis environment.
 
-## Import Data to a BDC Workspace
+<Link to="/data/explore">Explore Data in BDC</Link>
 
-Users who do not build cohorts may import the raw data files into their BDC workspace(s) by [following these instructions](https://sb-biodatacatalyst.readme.io/docs/import-data-from-biodata-catalyst-powered-by-gen3) once they have access to the data (open- and/or controlled-access data).
+## Data You Bring to BDC
 
-*If you are using a Terra Workspace, please scroll to the bottom of this webpage for more information. Read more about* [the differences between BDC’s standard workspaces (*BDC Powered by Seven Bridges*) and those provided by *BDC Powered by Terra*](/use-bdc/analyze-data/bdc-workspaces).
+Upload or connect data that you or your research team are authorized to use. You can analyze this data independently or combine it with other eligible data when permitted.
 
-## Utilize Analysis Tools
+Data you bring to BDC is different from consortium data that has already been made available through a designated BDC-Seven Bridges project.
 
-<Link to="https://accounts.sb.biodatacatalyst.nhlbi.nih.gov/auth/login" className="GTM-inline-link" id="bdc-workspaces-analyze">BDC workspaces</Link> are equipped with a breadth of pre-installed tools designed to perform complex bioinformatics analyses of both phenotypic and multi-omics data, including genomics, transcriptomics, metabolomics, proteomics, and imaging. BDC workspaces include the following features:
+<Link to="/data/share">Learn About Bringing Data to BDC in our documentation</Link>
 
-* Interactive applications and environments, such as RStudio, SAS, and JupyterLab notebooks  
-* Options for single-variant and multiple-variant association tests, including a cloud-optimized version of the Genesis R package  
-* Annotation Explorer tool that supports both pre- and post-association testing steps, including the ability to create variant aggregations  
-* Collaborative environments that allow global teams to work together seamlessly on the same project in the cloud  
-* Ability to bring and share workflows in the cloud using Docker and the Common Workflow Language (CWL)  
-* Unified interface for work across Azure, Google Cloud Platform (GCP), and Amazon Web Services (AWS) with one account and a single billing system  
-* User account settings to monitor and control cloud expenditures
+## Consortium Data in BDC-Seven Bridges
 
-## Bring Your Own Data (BYOD)
+Some participating research consortia and programs make data available to authorized members through designated BDC-Seven Bridges projects. Researchers should follow the access instructions provided by their consortium or program.
 
-As described in the [BDC Data Use Policy](/resources/usage-terms), researchers can upload data to a BDC workspace to share data with their collaborators via a consortium sharing model (account required; see [Prepare to Analyze Data](#prepare-to-analyze-data) above) if they have the appropriate approvals, provided researchers do not violate the terms of their Data Use Agreements, Limitations, or Institutional Review Board policies and guidelines.
+If your Research Community is interested in hosting data in BDC, <Link to="/help/contact-bdc">contact us</Link>.
 
-Data can be uploaded from local storage or an HTTP(S)/FTP server or imported from cloud storage. Read ["Upload your data" for more information.](https://sb-biodatacatalyst.readme.io/docs/upload-to-the-platform).
+# Choose an Analysis Platform
 
-## Terra Users
+BDC has two analysis environments, BDC-Seven Bridges and BDC-Terra, which are secure cloud spaces where researchers organize data, run analyses, and collaborate. In BDC-Seven Bridges, this environment is called a project. In BDC-Terra, it is called a workspace.
 
-- [Use this link to get to the platform](https://terra.biodatacatalyst.nhlbi.nih.gov/#workspaces/fc-product-demo/BioDataCatalyst-Gen3-data-on-Terra-Tutorial). 
-- [Use this link for instructions on importing BDC-hosted datasets into Terra workspaces](https://bdcatalyst.gitbook.io/biodata-catalyst-documentation/written-documentation/analyze-data-1/terra/bringing-data-into-a-workspace/bringing-in-data-from-gen3).
+## Start with BDC-Seven Bridges
+
+BDC-Seven Bridges supports a broad range of BDC research needs and experience levels. Researchers can work with BDC-hosted data, access authorized consortium data, use graphical and code-based tools, run reusable workflows, and collaborate in secure projects.
+
+BDC-Seven Bridges is generally the best place to begin when you:
+
+* Are new to analyzing data in BDC  
+* Need to access data provided through a participating consortium or research program  
+* Want both graphical and code-based analysis options  
+* Need preconfigured applications, workflows, or interactive environments  
+* Want to build or bring your own tools and workflows
+
+BDC-Seven Bridges is the only BDC analysis platform where authorized researchers can access consortium data.
+
+<Link to="#">Access BDC-Seven Bridges</Link><br />
+<Link to="#">BDC-Seven Bridges Getting Started Guide</Link><br />
+
+## When BDC-Terra May Be a Better Fit
+
+BDC-Terra provides a Google Cloud-based environment for researchers whose work is already connected to Terra or the broader Terra ecosystem.
+
+Consider BDC-Terra when you:
+
+* Already use Terra or collaborate with researchers who do  
+* Need to work with eligible BDC data alongside resources available through AnVIL or another Terra-based program  
+* Specifically need a Terra workspace for your research workflow
+
+<Link to="#">Access BDC-Terra</Link><br />
+<Link to="#">BDC-Terra Getting Started Guide</Link><br />
+
+## Compare BDC Analysis Platforms
+
+| Consideration | BDC-Seven Bridges | BDC-Terra |
+| :---- | :---- | :---- |
+| **Best starting point for** | Most BDC analysis needs | Existing Terra-centered workflows |
+| **Consortium data** | Available to authorized members | Not available |
+| **Interactive analysis** | JupyterLab, RStudio, SAS, and specialized environments | Jupyter, RStudio, and Terra-supported environments |
+| **Workflow emphasis** | Prebuilt and custom workflows, including graphical workflow tools | Primarily WDL-based workflows |
+| **Cloud environment** | AWS or Google Cloud Platform; Azure upon request | Google Cloud |
+
+<div class="display-flex flex-justify-center flex-align-center margin-top-2 margin-bottom-0">
+  <IconBadge icon="support" tone="warm" class="margin-right-1" />
+  <span>
+    Still not sure which platform to use?&nbsp;
+    <Link to="/help/contact-bdc" class="text-bold">Contact BDC Support.</Link>.
+  </span>
+</div>
+
+## How Analyzing Data in BDC Works
+
+### 1\. Identify and Access Your Data
+
+Determine whether you will use BDC-hosted data, data you bring to BDC, consortium data available through BDC-Seven Bridges, or an approved combination.
+
+Controlled-access data requires the appropriate data access approvals; you can check if you have access to data here. Consortium data requires authorization through the participating consortium or program.
+
+### 2\. Choose an Analysis Platform
+
+Start with BDC-Seven Bridges unless your existing workflow, collaborators, or program connections make BDC-Terra a better fit.
+
+Researchers working with consortium data must use BDC-Seven Bridges.
+
+### 3\. Create or Access an Analysis Environment
+
+Create a project in BDC-Seven Bridges or a workspace in BDC-Terra.
+
+Researchers working with consortium data may instead be invited to an existing BDC-Seven Bridges project created for their consortium or program.
+
+An approved billing account, billing group, or other funding source is required to run analyses.
+
+### 4\. Connect Your Data and Begin Analysis
+
+Depending on your research, you may:
+
+* Connect eligible BDC-hosted data  
+* Build and connect a cohort from supported datasets  
+* Access consortium data through a designated BDC-Seven Bridges project  
+* Upload or connect data you are authorized to use  
+* Combine eligible data sources when permitted
+
+Use interactive environments, applications, workflows, or your own tools to conduct your analysis and collaborate with your research team.
+
+## Need Help?
+
+BDC Support can help you determine which platform and data pathway apply to your research, understand access requirements, and find the appropriate documentation.
+
+<Link to="#">Contact BDC Support</Link><br />
+<Link to="#">View BDC Documentation</Link>
+
+</InPageNav>
+</div>
+</section>

@@ -1,0 +1,85 @@
+---
+import Card from '@bdc/ui-astro/card/Card.astro';
+import Link from '@bdc/ui-astro/link/Link.astro';
+import type { ImageMetadata } from 'astro';
+import PersonIdentityRow from './PersonIdentityRow.astro';
+
+interface ProfileCardLink {
+  label: string;
+  href: string;
+}
+
+interface Props extends astroHTML.JSX.HTMLAttributes<'aside'> {
+  name: string;
+  credentials?: string;
+  role?: string;
+  affiliation?: string;
+  image?: ImageMetadata | string;
+  imageAlt?: string;
+  summary?: string;
+  links?: ProfileCardLink[];
+  tone?: 'default' | 'cool' | 'warm';
+  showImageBorder?: boolean;
+}
+
+const {
+  name,
+  credentials,
+  role,
+  affiliation,
+  image,
+  imageAlt = '',
+  summary,
+  links = [],
+  tone = 'default',
+  showImageBorder = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const displayName = credentials ? `${name}, ${credentials}` : name;
+
+const toneClass =
+  tone === 'cool'
+    ? 'border-accent-cool-lighter'
+    : tone === 'warm'
+      ? 'border-accent-warm-lighter'
+      : 'border-base-lighter';
+---
+
+<aside class:list={['profile-card display-block width-full maxw-full margin-y-2', className]} {...rest}>
+  <Card variant="panel" class:list={['profile-card__card', toneClass]} border>
+    <div class="profile-card__content display-flex flex-column gap-2">
+      <PersonIdentityRow
+        name={name}
+        photo={image}
+        photoAlt={imageAlt}
+        size="md"
+        showImageBorder={showImageBorder}
+        showPlaceholderWhenNoPhoto={false}
+        class="margin-bottom-3"
+      >
+        <div class="profile-card__identity flex-align-self-center">
+          <h3 class="margin-top-0 margin-bottom-05">{displayName}</h3>
+          {(role || affiliation) && (
+            <p class="font-sans-xs text-base-dark margin-top-0 margin-bottom-0 line-height-sans-3">
+              {role}{role && affiliation ? ' - ' : ''}{affiliation}
+            </p>
+          )}
+        </div>
+      </PersonIdentityRow>
+
+      {summary && <p class="font-sans-sm margin-y-0 line-height-sans-4">{summary}</p>}
+
+      {links.length > 0 && (
+        <ul class="usa-list usa-list--unstyled margin-y-0">
+          {links.map((link) => (
+            <li class="margin-top-05">
+              <Link to={link.href}>→ {link.label}</Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </Card>
+</aside>
