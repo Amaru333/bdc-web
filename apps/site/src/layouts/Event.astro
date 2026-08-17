@@ -50,10 +50,10 @@ const isPast = eventEnd < now;
         <Breadcrumbs items={crumbs} />
 
         {isPast && (
-          <InlineAlert variant="success" noIcon>
-            <strong>This event has concluded</strong>
+          <InlineAlert variant="info" heading="This event has concluded">
             <p>
-              Recordings, slides, and related materials are provided below when available. 
+              Recordings, slides, or other related materials are provided below
+              when available, typically within five business days of the event.
             </p>
           </InlineAlert>
         )}

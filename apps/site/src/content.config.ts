@@ -15,7 +15,7 @@ const news = defineCollection({
           'General Update',
           'Research Highlight',
           'Contributor Highlight',
-          'Monthly Update',
+          'Newsletter',
           'Release Notes',
         ])
         .default('General Update'),
@@ -105,6 +105,20 @@ const coverage = defineCollection({
     source: z.string(),
     external: z.boolean().optional(),
     paywall: z.boolean().optional(),
+  }),
+});
+
+const testimonials = defineCollection({
+  loader: async () => {
+    const text = await readFile('./src/content/testimonials.yaml', 'utf-8');
+    const items = loadYaml(text) as Array<Record<string, unknown>>;
+    return items.map((item, i) => ({ id: String(i), ...item }));
+  },
+  schema: z.object({
+    quote: z.string(),
+    name: z.string(),
+    title: z.string(),
+    organization: z.string().optional(),
   }),
 });
 
@@ -249,6 +263,7 @@ export const collections = {
   events,
   publications,
   coverage,
+  testimonials,
   faqs,
   programs,
   eep,

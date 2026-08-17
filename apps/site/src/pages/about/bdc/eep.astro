@@ -9,6 +9,7 @@ import { sortByLastName } from '../../../util/sort-by-lastName';
 
 // Fetch all EEP members
 const members = await getCollection('eep');
+const adHocMemberCount = members.filter((member) => member.data.adhoc).length;
 
 // Sort: alphabetical by last name, adhoc members last
 const sorted = sortByLastName(
@@ -33,18 +34,27 @@ const rendered = await Promise.all(
       <div class="usa-prose usa-prose--full-width">
         <StatCard
           icon="people"
-          number="7"
+          number={members.length - adHocMemberCount}
           qualifier="Panel Members"
-          meta="Plus 1 Ad-hoc Member"
+          meta={`Plus ${adHocMemberCount} Ad-hoc Member${adHocMemberCount === 1 ? '' : 's'}`}
           description="Independent experts advising NHLBI leadership on the BDC ecosystem"
           float="right"
           tone="cool"
         />
         <p>
-          The BDC External Expert Panel (EEP) is an independent body of experts that provides feedback and input that helps NHLBI make strategic decisions on the BDC program. Members of the EEP volunteer their time and insights over a multi-year period. The individuals listed below are current members of the BDC EEP.
+          The BDC External Expert Panel (EEP) is an independent body of experts that 
+          provides feedback and input that helps NHLBI make strategic decisions on the 
+          BDC program. Members of the EEP volunteer their time and insights over a 
+          multi-year period.
         </p>
         <p>
-          EEP members represent diverse expertise across biomedical informatics, artificial intelligence, genomics, data science, cyberinfrastructure, education, and clinical research. Members volunteer their time and insights over multi-year terms to help ensure BDC continues to meet the needs of the research community.
+          EEP members represent diverse expertise across biomedical informatics, artificial 
+          intelligence, genomics, data science, cyberinfrastructure, education, and 
+          clinical research. Members volunteer their time and insights over multi-year 
+          terms to help ensure BDC continues to meet the needs of the research community.
+        </p>
+        <p>
+          The individuals listed below are current members of the BDC EEP.
         </p>
       </div>
     </div>

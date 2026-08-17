@@ -1,0 +1,98 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props extends astroHTML.JSX.HTMLAttributes<'div'> {
+  name: string;
+  photo?: ImageMetadata | string;
+  photoAlt?: string;
+  size?: 'sm' | 'md';
+  showImageBorder?: boolean;
+  showPlaceholderWhenNoPhoto?: boolean;
+}
+
+const {
+  name,
+  photo,
+  photoAlt = name,
+  size = 'sm',
+  showImageBorder = false,
+  showPlaceholderWhenNoPhoto = true,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const initials = name
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((part) => part[0]?.toUpperCase())
+  .join('');
+
+const avatarDisplayClass =
+  size === 'md'
+    ? 'person-identity-row__avatar--md'
+    : 'person-identity-row__avatar--sm';
+const avatarOutputSize = size === 'md' ? 192 : 96;
+const shouldRenderAvatar = Boolean(photo) || showPlaceholderWhenNoPhoto;
+---
+
+<div class:list={['person-identity-row display-flex flex-align-start gap-2', `person-identity-row--${size}`, className]} {...rest}>
+  {shouldRenderAvatar && (
+    <div
+      class:list={[
+        'person-identity-row__avatar radius-pill overflow-hidden display-flex flex-align-center flex-justify-center bg-base-lighter text-base-darker text-bold',
+        avatarDisplayClass,
+        showImageBorder && 'border border-base-lighter',
+      ]}
+    >
+      {photo ? (
+        typeof photo === 'string' ? (
+          <img
+            src={photo}
+            alt={photoAlt}
+            width={avatarOutputSize}
+            height={avatarOutputSize}
+            class="width-full height-full person-identity-row__image"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <Image
+            src={photo}
+            alt={photoAlt}
+            width={avatarOutputSize}
+            height={avatarOutputSize}
+            fit="cover"
+            class="width-full height-full person-identity-row__image"
+            loading="lazy"
+          />
+        )
+      ) : (
+        <span aria-hidden="true">{initials}</span>
+      )}
+    </div>
+  )}
+
+  <div class="minw-0 flex-fill margin-left-2">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .person-identity-row__avatar--sm {
+    width: 3.25rem;
+    height: 3.25rem;
+    flex: 0 0 3.25rem;
+  }
+
+  .person-identity-row__avatar--md {
+    width: 6rem;
+    height: 6rem;
+    flex: 0 0 6rem;
+  }
+
+  .person-identity-row__image {
+    object-fit: cover;
+  }
+</style>

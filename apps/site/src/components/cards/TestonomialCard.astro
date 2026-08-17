@@ -1,0 +1,35 @@
+---
+import Card from '@bdc/ui-astro/card/Card.astro';
+import type { ImageMetadata } from 'astro';
+import PersonIdentityRow from './PersonIdentityRow.astro';
+
+interface Props {
+  quote: string;
+  name: string;
+  title: string;
+  organization?: string;
+  photo?: ImageMetadata | string;
+  photoAlt?: string;
+}
+
+const {
+  quote,
+  name,
+  title,
+  organization,
+  photo,
+  photoAlt = name,
+} = Astro.props;
+---
+
+<Card variant="testimonial" class="height-full display-flex flex-column gap-2 border border-base-lighter shadow-1">
+  <p class="margin-0 margin-bottom-2 font-sans-sm line-height-sans-5 text-italic text-base-dark">"{quote}"</p>
+
+  <PersonIdentityRow name={name} photo={photo} photoAlt={photoAlt} size="sm" class="margin-top-auto flex-align-center">
+    <div class="minw-0">
+      <p class="margin-0 text-bold text-primary-darker line-height-sans-3">{name}</p>
+      <p class="margin-0 font-sans-2xs text-base line-height-sans-3">{title}</p>
+      {organization && <p class="margin-0 font-sans-2xs text-base line-height-sans-3">{organization}</p>}
+    </div>
+  </PersonIdentityRow>
+</Card>
