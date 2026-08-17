@@ -4,7 +4,6 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
   schedule:
     # Weekly Monday 14:00 UTC — governance review of internal + external links
     - cron: "0 14 * * 1"
@@ -22,7 +21,9 @@ concurrency:
 jobs:
   lint:
     name: Lint
-    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    if: >-
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -107,13 +108,74 @@ jobs:
         working-directory: apps/site
         run: node a11y/full.js
 
+  detect_link_apps:
+    name: Detect apps for link check
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.apps.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect changed applications
+        if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          # On branch pushes, inspect only files included in this push instead of
+          # every change accumulated on the branch since it diverged from main.
+          base: ${{ github.event.before }}
+          filters: |
+            site:
+              - 'apps/site/**'
+              - 'packages/ui-astro/**'
+              - 'packages/ui-react/**'
+              - 'packages/uswds-assets/**'
+              - 'packages/uswds-theme/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.nvmrc'
+              - 'lychee.toml'
+              - 'scripts/check-links.mjs'
+            consortium:
+              - 'apps/consortium/**'
+              - 'packages/google-api/**'
+              - 'packages/uswds-theme/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.nvmrc'
+              - 'lychee.toml'
+              - 'scripts/check-links.mjs'
+            docs:
+              - 'apps/docs/**'
+              - 'packages/uswds-theme/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.nvmrc'
+              - 'lychee.toml'
+              - 'scripts/check-links.mjs'
+
+      - name: Select applications
+        id: apps
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          GIT_REF: ${{ github.ref }}
+          CHANGED_APPS: ${{ steps.changes.outputs.changes }}
+        run: |
+          if [[ "$EVENT_NAME" == "pull_request" || "$GIT_REF" == "refs/heads/main" || "$EVENT_NAME" == "schedule" || "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo 'value=["site","consortium","docs"]' >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${CHANGED_APPS:-[]}" >> "$GITHUB_OUTPUT"
+          fi
+
   link_check_internal:
     name: Internal links (${{ matrix.app }})
+    needs: detect_link_apps
+    if: needs.detect_link_apps.outputs.apps != '[]'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        app: [site, consortium]
+        app: ${{ fromJSON(needs.detect_link_apps.outputs.apps) }}
     steps:
       - uses: actions/checkout@v4
 
