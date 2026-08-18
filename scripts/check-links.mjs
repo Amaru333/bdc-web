@@ -1,13 +1,25 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import {
+  escapeRegExp,
+  findIgnoredRedirects,
+  ignoredHostnamePattern,
+} from './link-exclusions.mjs';
 
 const root = resolve(import.meta.dirname, '..');
-const mode = process.argv[2] ?? 'offline';
-const requestedApp = process.argv[3];
+const [mode = 'offline', ...options] = process.argv.slice(2);
+const verbose = options.includes('--verbose');
+const positionalOptions = options.filter((option) => option !== '--verbose');
+const requestedApp = positionalOptions[0];
 
-if (!['offline', 'online', 'unique'].includes(mode)) {
-  console.error('Usage: node scripts/check-links.mjs <offline|online|unique>');
+if (
+  !['offline', 'online', 'unique'].includes(mode) ||
+  positionalOptions.length > 1
+) {
+  console.error(
+    'Usage: node scripts/check-links.mjs <offline|online|unique> [app] [--verbose]',
+  );
   process.exit(1);
 }
 
@@ -88,6 +100,19 @@ for (const app of apps) {
     args.push('--offline');
   }
 
+  if (!verbose) {
+    args.push('--exclude', ignoredHostnamePattern());
+
+    if (mode === 'online') {
+      const redirects = await findIgnoredRedirects(join(app.directory, 'dist'));
+      console.log(
+        `Ignoring ${redirects.length} Bitly redirect(s) to configured hostnames.`,
+      );
+      for (const url of redirects) {
+        args.push('--exclude', `^${escapeRegExp(url)}$`);
+      }
+    }
+  }
   if (mode === 'unique') args.push('--format', 'compact');
   args.push(`apps/${app.name}/dist/**/*.html`);
 
