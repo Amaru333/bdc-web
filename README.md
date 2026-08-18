@@ -180,6 +180,34 @@ Pull requests are automatically validated by CI, which runs:
 
 All checks must pass before a PR can be merged.
 
+#### Local link checks
+
+The `links:*` scripts require the Lychee CLI to be installed and available on your `PATH`:
+
+```bash
+# macOS (Homebrew)
+brew install lychee
+
+# Linux (Ubuntu/Snap)
+sudo snap install lychee
+
+# Verify the installation
+lychee --version
+```
+
+You can then check every app from the repository root:
+
+```bash
+npm run links:offline
+```
+
+To check an individual app, run the same script from its directory (for example, `apps/site`):
+
+```bash
+cd apps/site
+npm run links:offline
+```
+
 ### Before opening a PR
 
 - Review `/docs/architecture.md`

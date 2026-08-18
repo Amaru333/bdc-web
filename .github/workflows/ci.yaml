@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
+    branches: ['**']
   schedule:
     # Weekly Monday 14:00 UTC — governance review of internal + external links
     - cron: "0 14 * * 1"
