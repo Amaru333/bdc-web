@@ -208,6 +208,14 @@ cd apps/site
 npm run links:offline
 ```
 
+Hostnames listed in `DEFAULT_IGNORED_HOSTNAMES` in `scripts/link-exclusions.mjs` are skipped by default. The link checker also resolves Bitly URLs and skips only those that redirect to a listed hostname, so new shortened meeting links require no additional configuration and other Bitly destinations are still checked. Add `--verbose` to include every link in an online check:
+
+```bash
+npm run links:online -- --verbose
+```
+
+Manual CI runs provide the same behavior through the **Include normally ignored links in external checks** option. Scheduled checks continue to apply the default hostname list.
+
 ### Before opening a PR
 
 - Review `/docs/architecture.md`
