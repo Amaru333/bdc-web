@@ -71,12 +71,36 @@ function sha256(value) {
 }
 
 function normalizeContentForHash(input) {
-  return input
+  return normalizeCloudflareEmails(input)
     .replace(/\r\n/g, '\n')
     .replace(/\s+/g, ' ')
     .replace(/ data-testid="[^"]+"/g, '')
     .replace(/ class="[^"]*"/g, '')
     .trim();
+}
+
+function normalizeCloudflareEmails(input) {
+  return input
+    .replace(
+      /\/cdn-cgi\/l\/email-protection#([a-f\d]+)/gi,
+      (_, encoded) => `mailto:${decodeCloudflareEmail(encoded)}`,
+    )
+    .replace(
+      /data-cfemail="([a-f\d]+)"/gi,
+      (_, encoded) => `data-email="${decodeCloudflareEmail(encoded)}"`,
+    );
+}
+
+function decodeCloudflareEmail(encoded) {
+  const key = Number.parseInt(encoded.slice(0, 2), 16);
+  let decoded = '';
+
+  for (let index = 2; index < encoded.length; index += 2) {
+    const byte = Number.parseInt(encoded.slice(index, index + 2), 16);
+    decoded += String.fromCharCode(byte ^ key);
+  }
+
+  return decoded;
 }
 
 function extractReadmeBodyHtml(html) {
