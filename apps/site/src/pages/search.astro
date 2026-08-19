@@ -6,26 +6,25 @@ import Base from '@layouts/Base.astro';
   <section class="usa-section">
     <div class="grid-container">
       <h1>Search Results</h1>
-      <div id="search-results" class="margin-top-4"></div>
-      <aside
-        id="search-no-results-suggestions"
-        class="usa-alert usa-alert--info margin-top-4"
-        aria-live="polite"
-        hidden
-      >
-        <div class="usa-alert__body">
-          <h2 class="usa-alert__heading">No results were found</h2>
-          <p class="usa-alert__text">
-            Please refer to these links:
-          </p>
-          <ul class="usa-list margin-bottom-0">
-            <li><a class="usa-link" href="/data/explore">Explore available data</a></li>
-            <li><a class="usa-link" href="/data/analyze">Analyze data</a></li>
-            <li><a class="usa-link" href="/data/learning-and-training">Learning and training</a></li>
-            <li><a class="usa-link" href="/help/contact-and-support">Contact and support</a></li>
-          </ul>
+      <div id="search-results-layout" class="grid-row grid-gap margin-top-4">
+        <aside id="search-results-filters" class="tablet:grid-col-4 margin-bottom-2 tablet:margin-bottom-0 search-results-filters" hidden aria-label="Search filters"></aside>
+        <div class="tablet:grid-col-8 search-results-main">
+          <div id="search-results-toolbar" hidden></div>
+          <div id="search-results"></div>
+          <aside id="search-no-results-suggestions" class="usa-alert usa-alert--info margin-top-4" aria-live="polite" hidden>
+            <div class="usa-alert__body">
+              <h2 class="usa-alert__heading">No results were found</h2>
+              <p class="usa-alert__text">Please refer to these links:</p>
+              <ul class="usa-list margin-bottom-0">
+                <li><a class="usa-link" href="/data/explore">Explore available data</a></li>
+                <li><a class="usa-link" href="/data/analyze">Analyze data</a></li>
+                <li><a class="usa-link" href="/data/learning-and-training">Learning and training</a></li>
+                <li><a class="usa-link" href="/help/contact-and-support">Contact and support</a></li>
+              </ul>
+            </div>
+          </aside>
         </div>
-      </aside>
+      </div>
     </div>
   </section>
 
@@ -44,5 +43,70 @@ import Base from '@layouts/Base.astro';
     font-weight: 300;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+  }
+
+  #search-results .pagefind-ui__filter-panel {
+    display: none !important;
+  }
+
+  #search-results .pagefind-ui__drawer {
+    display: block;
+  }
+
+  #search-results .pagefind-ui__results-area {
+    min-width: 100%;
+    flex: 1;
+    margin-top: 0;
+  }
+
+  #search-results .pagefind-ui__form {
+    margin-bottom: 1.5rem;
+  }
+
+  #search-results .pagefind-ui__search-input {
+    height: auto;
+    min-height: 3rem;
+    padding: 0.5rem 3rem 0.5rem 2.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    border-color: #757575;
+    border-radius: 0.25rem;
+  }
+
+  #search-results .pagefind-ui__search-input:focus {
+    outline: 0.25rem solid #2491ff;
+    outline-offset: 0;
+  }
+
+  #search-results .pagefind-ui__search-clear {
+    top: 50%;
+    right: 0.5rem;
+    height: auto;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    background-color: transparent;
+    border-radius: 0;
+    transform: translateY(-50%);
+  }
+
+  .search-results-filters {
+    align-self: flex-start;
+  }
+
+  .search-results-filters__title {
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  #search-results-filters .usa-checkbox__label,
+  #search-results-filters .usa-label,
+  #search-results-filters .usa-legend,
+  #search-results-toolbar .usa-label {
+    margin-top: 0;
+  }
+
+  #search-results-filters .usa-checkbox + .usa-checkbox {
+    margin-top: 0.5rem;
   }
 </style>

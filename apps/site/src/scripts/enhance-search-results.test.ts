@@ -14,7 +14,28 @@ function renderTemplates() {
     <template id="search-result-breadcrumb-template">
       <p data-search-result-breadcrumb></p>
     </template>
+    <div id="search-results-layout">
+      <aside id="search-results-filters" hidden></aside>
+      <div>
+        <div id="search-results-toolbar" hidden></div>
+        <div id="search-results"></div>
+      </div>
+    </div>
   `;
+}
+
+function createObservedResultsContainer() {
+  const layout = document.querySelector('#search-results-layout');
+  const container = document.querySelector('#search-results');
+  const results = document.createElement('ol');
+
+  if (!(layout instanceof HTMLElement) || !(container instanceof HTMLElement)) {
+    throw new Error('Search results layout is missing from the test DOM');
+  }
+
+  container.appendChild(results);
+  observeSearchResults(container);
+  return { container, results };
 }
 
 function createResult() {
@@ -50,6 +71,17 @@ function renderNoResultsHelper() {
   return helper;
 }
 
+function createNamedResult(title: string, href: string) {
+  const result = document.createElement('li');
+  result.className = 'pf-result';
+  result.innerHTML = `
+    <a class="pf-result-link" href="${href}">${title}</a>
+    <div data-search-result-breadcrumb-slot></div>
+    <p data-search-result-badge-slot></p>
+  `;
+  return result;
+}
+
 describe('search result enhancements', () => {
   beforeEach(renderTemplates);
 
@@ -66,12 +98,10 @@ describe('search result enhancements', () => {
   });
 
   it('enhances results added after observation begins', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    observeSearchResults(container);
+    const { results } = createObservedResultsContainer();
 
     const result = createResult();
-    container.appendChild(result);
+    results.appendChild(result);
     await vi.waitFor(() => {
       expect(result.querySelector('.shared-badge')).toHaveTextContent('Page');
     });
@@ -133,5 +163,89 @@ describe('search result enhancements', () => {
     await vi.waitFor(() => {
       expect(helper).not.toHaveAttribute('hidden');
     });
+  });
+
+  it('renders section filters from the current search results', async () => {
+    const { results } = createObservedResultsContainer();
+    results.appendChild(
+      createNamedResult('Alpha update', '/news/latest-updates/alpha'),
+    );
+    results.appendChild(createNamedResult('Explore data', '/data/explore'));
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelector('#search-results-filters'),
+      ).not.toHaveAttribute('hidden');
+      expect(
+        document.querySelector('#search-results-toolbar'),
+      ).not.toHaveAttribute('hidden');
+    });
+
+    expect(document.body).toHaveTextContent('Section');
+    expect(document.body).toHaveTextContent('Data');
+    expect(document.body).toHaveTextContent('News');
+  });
+
+  it('filters visible results when a section checkbox is selected', async () => {
+    const { results } = createObservedResultsContainer();
+    const newsResult = createNamedResult(
+      'Alpha update',
+      '/news/latest-updates/alpha',
+    );
+    const dataResult = createNamedResult('Explore data', '/data/explore');
+    results.appendChild(newsResult);
+    results.appendChild(dataResult);
+
+    const newsFilter = await vi.waitFor(() => {
+      const input = document.querySelector<HTMLInputElement>(
+        '#search-filter-news',
+      );
+      expect(input).toBeInTheDocument();
+      if (!input) {
+        throw new Error('Expected #search-filter-news to be in the document');
+      }
+      return input;
+    });
+
+    newsFilter.checked = true;
+    newsFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+    await vi.waitFor(() => {
+      expect(newsResult.hidden).toBe(false);
+      expect(dataResult.hidden).toBe(true);
+    });
+
+    expect(window.location.search).toContain('section=News');
+  });
+
+  it('sorts results alphabetically when title sort is selected', async () => {
+    const { results } = createObservedResultsContainer();
+    results.appendChild(createNamedResult('Zebra guide', '/help/zebra-guide'));
+    results.appendChild(
+      createNamedResult('Alpha update', '/news/alpha-update'),
+    );
+
+    const sortSelect = await vi.waitFor(() => {
+      const select = document.querySelector<HTMLSelectElement>(
+        '#search-results-sort',
+      );
+      expect(select).toBeInTheDocument();
+      if (!select) {
+        throw new Error('Expected #search-results-sort to be in the document');
+      }
+      return select;
+    });
+
+    sortSelect.value = 'title-asc';
+    sortSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+    await vi.waitFor(() => {
+      const titles = Array.from(
+        document.querySelectorAll('.pf-result-link'),
+      ).map((link) => link.textContent);
+      expect(titles).toEqual(['Alpha update', 'Zebra guide']);
+    });
+
+    expect(window.location.search).toContain('sort=title-asc');
   });
 });
