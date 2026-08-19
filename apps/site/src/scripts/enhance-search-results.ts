@@ -2,6 +2,8 @@ import { getBreadcrumbLabel } from '../util/get-breadcrumb-label';
 
 const RESULT_SELECTOR = '.pf-result, .pagefind-ui__result';
 const LINK_SELECTOR = '.pf-result-link, .pagefind-ui__result-link';
+const SEARCH_NO_RESULTS_HELPER_SELECTOR = '#search-no-results-suggestions';
+const SEARCH_MESSAGE_SELECTOR = '.pagefind-ui__message';
 
 function cloneTemplateElement(templateId: string): HTMLElement | null {
   const template = document.querySelector(`#${templateId}`);
@@ -56,6 +58,34 @@ export function enhanceSearchResult(result: Element): void {
 
 export function enhanceSearchResults(container: Element): void {
   container.querySelectorAll(RESULT_SELECTOR).forEach(enhanceSearchResult);
+}
+
+export function syncSearchNoResultsSuggestions(container: Element): void {
+  const helper = document.querySelector(SEARCH_NO_RESULTS_HELPER_SELECTOR);
+  if (!(helper instanceof HTMLElement)) return;
+
+  const message = container.querySelector(SEARCH_MESSAGE_SELECTOR);
+  const messageText = message?.textContent?.toLowerCase() ?? '';
+  const hasResults = container.querySelector(RESULT_SELECTOR) !== null;
+
+  helper.hidden = !(messageText.includes('no results') && !hasResults);
+}
+
+export function observeSearchNoResultsSuggestions(
+  container: HTMLElement,
+): void {
+  if (container.dataset.searchNoResultsReady) return;
+
+  container.dataset.searchNoResultsReady = 'true';
+  const observer = new MutationObserver(() => {
+    syncSearchNoResultsSuggestions(container);
+  });
+  observer.observe(container, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+  syncSearchNoResultsSuggestions(container);
 }
 
 export function observeSearchResults(container: HTMLElement): void {

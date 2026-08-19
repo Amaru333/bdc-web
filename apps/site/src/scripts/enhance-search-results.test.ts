@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   enhanceSearchResult,
+  observeSearchNoResultsSuggestions,
   observeSearchResults,
+  syncSearchNoResultsSuggestions,
 } from './enhance-search-results';
 
 function renderTemplates() {
@@ -38,6 +40,14 @@ function createDefaultUiResult() {
     </div>
   `;
   return result;
+}
+
+function renderNoResultsHelper() {
+  const helper = document.createElement('aside');
+  helper.id = 'search-no-results-suggestions';
+  helper.hidden = true;
+  document.body.appendChild(helper);
+  return helper;
 }
 
 describe('search result enhancements', () => {
@@ -81,5 +91,47 @@ describe('search result enhancements', () => {
       'text-primary',
     );
     expect(result.querySelector('.shared-badge')).not.toBeInTheDocument();
+  });
+
+  it('shows the search-page suggestions when Pagefind returns no results', () => {
+    const helper = renderNoResultsHelper();
+    const container = document.createElement('div');
+    container.innerHTML = `
+      <p class="pagefind-ui__message">No results found for "orchid"</p>
+    `;
+
+    syncSearchNoResultsSuggestions(container);
+
+    expect(helper).not.toHaveAttribute('hidden');
+  });
+
+  it('hides the search-page suggestions when Pagefind returns results', () => {
+    const helper = renderNoResultsHelper();
+    const container = document.createElement('div');
+    container.innerHTML = `
+      <p class="pagefind-ui__message">No results found for "orchid"</p>
+      <ol>
+        <li class="pagefind-ui__result">Result</li>
+      </ol>
+    `;
+
+    syncSearchNoResultsSuggestions(container);
+
+    expect(helper).toHaveAttribute('hidden');
+  });
+
+  it('updates the search-page suggestions as the search results change', async () => {
+    const helper = renderNoResultsHelper();
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    observeSearchNoResultsSuggestions(container);
+
+    container.innerHTML = `
+      <p class="pagefind-ui__message">No results found for "orchid"</p>
+    `;
+
+    await vi.waitFor(() => {
+      expect(helper).not.toHaveAttribute('hidden');
+    });
   });
 });

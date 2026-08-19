@@ -7,6 +7,25 @@ import Base from '@layouts/Base.astro';
     <div class="grid-container">
       <h1>Search Results</h1>
       <div id="search-results" class="margin-top-4"></div>
+      <aside
+        id="search-no-results-suggestions"
+        class="usa-alert usa-alert--info margin-top-4"
+        aria-live="polite"
+        hidden
+      >
+        <div class="usa-alert__body">
+          <h2 class="usa-alert__heading">No results were found</h2>
+          <p class="usa-alert__text">
+            Please refer to these links:
+          </p>
+          <ul class="usa-list margin-bottom-0">
+            <li><a class="usa-link" href="/data/explore">Explore available data</a></li>
+            <li><a class="usa-link" href="/data/analyze">Analyze data</a></li>
+            <li><a class="usa-link" href="/data/learning-and-training">Learning and training</a></li>
+            <li><a class="usa-link" href="/help/contact-and-support">Contact and support</a></li>
+          </ul>
+        </div>
+      </aside>
     </div>
   </section>
 

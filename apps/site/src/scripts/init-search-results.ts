@@ -1,4 +1,7 @@
-import { observeSearchResults } from './enhance-search-results';
+import {
+  observeSearchNoResultsSuggestions,
+  observeSearchResults,
+} from './enhance-search-results';
 
 declare const PagefindUI:
   | undefined
@@ -32,6 +35,7 @@ function initSearchResults(): void {
   });
 
   observeSearchResults(container);
+  observeSearchNoResultsSuggestions(container);
 
   if (query) {
     pagefind.triggerSearch(query);
