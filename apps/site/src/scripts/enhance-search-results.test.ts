@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   enhanceSearchResult,
+  initSearchResultsControls,
   observeSearchNoResultsSuggestions,
-  observeSearchResults,
+  renderSearchResultsView,
+  type SearchResultRecord,
+  setSearchResultsState,
   syncSearchNoResultsSuggestions,
 } from './enhance-search-results';
 
@@ -18,24 +21,30 @@ function renderTemplates() {
       <aside id="search-results-filters" hidden></aside>
       <div>
         <div id="search-results-toolbar" hidden></div>
-        <div id="search-results"></div>
+        <div id="search-results">
+          <p id="search-results-message" class="search-results-message"></p>
+          <ol id="search-results-list" class="search-results-list"></ol>
+        </div>
+        <nav id="search-results-pagination" hidden></nav>
       </div>
     </div>
   `;
 }
 
-function createObservedResultsContainer() {
-  const layout = document.querySelector('#search-results-layout');
+function getSearchContainer() {
   const container = document.querySelector('#search-results');
-  const results = document.createElement('ol');
-
-  if (!(layout instanceof HTMLElement) || !(container instanceof HTMLElement)) {
-    throw new Error('Search results layout is missing from the test DOM');
+  if (!(container instanceof HTMLElement)) {
+    throw new Error('Search results container is missing from the test DOM');
   }
+  return container;
+}
 
-  container.appendChild(results);
-  observeSearchResults(container);
-  return { container, results };
+function mountSearchResults(records: SearchResultRecord[]) {
+  const container = getSearchContainer();
+  initSearchResultsControls(container);
+  setSearchResultsState(container, records, 'example');
+  renderSearchResultsView(container);
+  return container;
 }
 
 function createResult() {
@@ -71,19 +80,24 @@ function renderNoResultsHelper() {
   return helper;
 }
 
-function createNamedResult(title: string, href: string) {
-  const result = document.createElement('li');
-  result.className = 'pf-result';
-  result.innerHTML = `
-    <a class="pf-result-link" href="${href}">${title}</a>
-    <div data-search-result-breadcrumb-slot></div>
-    <p data-search-result-badge-slot></p>
-  `;
-  return result;
+function createRecord(
+  title: string,
+  href: string,
+  originalIndex: number,
+): SearchResultRecord {
+  return {
+    title,
+    url: href,
+    excerpt: '',
+    originalIndex,
+  };
 }
 
 describe('search result enhancements', () => {
-  beforeEach(renderTemplates);
+  beforeEach(() => {
+    window.history.replaceState({}, '', '/search');
+    renderTemplates();
+  });
 
   it('uses shared templates for the page badge and breadcrumb', () => {
     const result = createResult();
@@ -95,16 +109,6 @@ describe('search result enhancements', () => {
     expect(
       result.querySelector('[data-search-result-breadcrumb]'),
     ).toHaveTextContent('News > Latest Updates > Example');
-  });
-
-  it('enhances results added after observation begins', async () => {
-    const { results } = createObservedResultsContainer();
-
-    const result = createResult();
-    results.appendChild(result);
-    await vi.waitFor(() => {
-      expect(result.querySelector('.shared-badge')).toHaveTextContent('Page');
-    });
   });
 
   it('uses the shared breadcrumb and standard link style for Default UI results', () => {
@@ -123,54 +127,41 @@ describe('search result enhancements', () => {
     expect(result.querySelector('.shared-badge')).not.toBeInTheDocument();
   });
 
-  it('shows the search-page suggestions when Pagefind returns no results', () => {
+  it('shows the search-page suggestions when there are no results', () => {
     const helper = renderNoResultsHelper();
-    const container = document.createElement('div');
-    container.innerHTML = `
-      <p class="pagefind-ui__message">No results found for "orchid"</p>
-    `;
+    const container = getSearchContainer();
 
-    syncSearchNoResultsSuggestions(container);
+    syncSearchNoResultsSuggestions(container, 'orchid', 0);
 
     expect(helper).not.toHaveAttribute('hidden');
   });
 
-  it('hides the search-page suggestions when Pagefind returns results', () => {
+  it('hides the search-page suggestions when results are available', () => {
     const helper = renderNoResultsHelper();
-    const container = document.createElement('div');
-    container.innerHTML = `
-      <p class="pagefind-ui__message">No results found for "orchid"</p>
-      <ol>
-        <li class="pagefind-ui__result">Result</li>
-      </ol>
-    `;
+    const container = getSearchContainer();
 
-    syncSearchNoResultsSuggestions(container);
+    syncSearchNoResultsSuggestions(container, 'orchid', 3);
 
     expect(helper).toHaveAttribute('hidden');
   });
 
   it('updates the search-page suggestions as the search results change', async () => {
     const helper = renderNoResultsHelper();
-    const container = document.createElement('div');
-    document.body.appendChild(container);
+    const container = getSearchContainer();
     observeSearchNoResultsSuggestions(container);
 
-    container.innerHTML = `
-      <p class="pagefind-ui__message">No results found for "orchid"</p>
-    `;
+    syncSearchNoResultsSuggestions(container, 'orchid', 0);
 
     await vi.waitFor(() => {
       expect(helper).not.toHaveAttribute('hidden');
     });
   });
 
-  it('renders section filters from the current search results', async () => {
-    const { results } = createObservedResultsContainer();
-    results.appendChild(
-      createNamedResult('Alpha update', '/news/latest-updates/alpha'),
-    );
-    results.appendChild(createNamedResult('Explore data', '/data/explore'));
+  it('renders section filters from all search results', async () => {
+    mountSearchResults([
+      createRecord('Alpha update', '/news/latest-updates/alpha', 0),
+      createRecord('Explore data', '/data/explore', 1),
+    ]);
 
     await vi.waitFor(() => {
       expect(
@@ -186,15 +177,19 @@ describe('search result enhancements', () => {
     expect(document.body).toHaveTextContent('News');
   });
 
-  it('filters visible results when a section checkbox is selected', async () => {
-    const { results } = createObservedResultsContainer();
-    const newsResult = createNamedResult(
-      'Alpha update',
-      '/news/latest-updates/alpha',
-    );
-    const dataResult = createNamedResult('Explore data', '/data/explore');
-    results.appendChild(newsResult);
-    results.appendChild(dataResult);
+  it('filters all loaded results before paginating', async () => {
+    const records = [
+      createRecord('Explore data', '/data/explore', 0),
+      ...Array.from({ length: 11 }, (_, index) =>
+        createRecord(
+          `News item ${index + 1}`,
+          `/news/latest-updates/item-${index + 1}`,
+          index + 1,
+        ),
+      ),
+    ];
+
+    mountSearchResults(records);
 
     const newsFilter = await vi.waitFor(() => {
       const input = document.querySelector<HTMLInputElement>(
@@ -211,19 +206,37 @@ describe('search result enhancements', () => {
     newsFilter.dispatchEvent(new Event('change', { bubbles: true }));
 
     await vi.waitFor(() => {
-      expect(newsResult.hidden).toBe(false);
-      expect(dataResult.hidden).toBe(true);
+      expect(document.body).toHaveTextContent(
+        'Showing 11 of 12 matching pages',
+      );
+      expect(
+        document.querySelectorAll('#search-results-list .pagefind-ui__result-link'),
+      ).toHaveLength(10);
+      expect(document.body).toHaveTextContent('Page 1 of 2');
+    });
+
+    const nextPage = document.querySelector<HTMLButtonElement>(
+      '[data-search-page="next"]',
+    );
+    expect(nextPage).toBeInTheDocument();
+    nextPage?.click();
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelectorAll('#search-results-list .pagefind-ui__result-link'),
+      ).toHaveLength(1);
+      expect(document.body).toHaveTextContent('Page 2 of 2');
     });
 
     expect(window.location.search).toContain('section=News');
   });
 
-  it('sorts results alphabetically when title sort is selected', async () => {
-    const { results } = createObservedResultsContainer();
-    results.appendChild(createNamedResult('Zebra guide', '/help/zebra-guide'));
-    results.appendChild(
-      createNamedResult('Alpha update', '/news/alpha-update'),
-    );
+  it('sorts all loaded results before paginating', async () => {
+    mountSearchResults([
+      createRecord('Zebra guide', '/help/zebra-guide', 0),
+      createRecord('Alpha update', '/news/alpha-update', 1),
+      createRecord('Beta update', '/news/beta-update', 2),
+    ]);
 
     const sortSelect = await vi.waitFor(() => {
       const select = document.querySelector<HTMLSelectElement>(
@@ -241,9 +254,9 @@ describe('search result enhancements', () => {
 
     await vi.waitFor(() => {
       const titles = Array.from(
-        document.querySelectorAll('.pf-result-link'),
+        document.querySelectorAll('#search-results-list .pagefind-ui__result-link'),
       ).map((link) => link.textContent);
-      expect(titles).toEqual(['Alpha update', 'Zebra guide']);
+      expect(titles).toEqual(['Alpha update', 'Beta update', 'Zebra guide']);
     });
 
     expect(window.location.search).toContain('sort=title-asc');
