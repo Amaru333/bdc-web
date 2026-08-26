@@ -362,6 +362,7 @@ function createResultElement(record: ProcessedSearchResult): HTMLElement {
         <a class="pagefind-ui__result-link usa-link text-primary" href="${escapeHtml(record.url)}">${escapeHtml(record.title)}</a>
       </p>
       <div data-search-result-breadcrumb-slot></div>
+      <p class="margin-0" data-search-result-badge-slot></p>
       ${excerptMarkup}
     </div>
   `;

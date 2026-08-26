@@ -151,6 +151,26 @@ describe('search result enhancements', () => {
     expect(result.querySelector('.shared-badge')).not.toBeInTheDocument();
   });
 
+  it('uses News, Event, and Page badges on the search results page', async () => {
+    mountSearchResults([
+      createRecord('Alpha update', '/news/latest-updates/alpha', 0),
+      createRecord(
+        'Community hours',
+        '/news/events/2026/07/community-hours',
+        1,
+      ),
+      createRecord('Explore data', '/data/explore', 2),
+    ]);
+
+    await vi.waitFor(() => {
+      const badges = Array.from(
+        document.querySelectorAll('#search-results-list .shared-badge'),
+      ).map((badge) => badge.textContent);
+
+      expect(badges).toEqual(['News', 'Event', 'Page']);
+    });
+  });
+
   it('shows the search-page suggestions when there are no results', () => {
     const helper = renderNoResultsHelper();
     const container = getSearchContainer();
