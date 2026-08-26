@@ -1,5 +1,5 @@
 ---
-import Base from '@layouts/Base.astro';
+import Base from "@layouts/Base.astro";
 ---
 
 <Base title="Search Results" indexForSearch={false}>
@@ -14,16 +14,7 @@ import Base from '@layouts/Base.astro';
             <div class="search-results-header">
               <form id="search-results-form" class="search-results-form margin-bottom-0" role="search">
                 <label class="usa-sr-only" for="search-results-query">Search site</label>
-                <input
-                  class="usa-input search-results-form__input"
-                  id="search-results-query"
-                  name="q"
-                  type="text"
-                  inputmode="search"
-                  enterkeyhint="search"
-                  placeholder="Search site..."
-                  autocomplete="off"
-                />
+                <input class="usa-input search-results-form__input" id="search-results-query" name="q" type="text" inputmode="search" enterkeyhint="search" placeholder="Search site..." autocomplete="off" />
               </form>
               <p id="search-results-message" class="search-results-message" aria-live="polite"></p>
             </div>
@@ -32,8 +23,8 @@ import Base from '@layouts/Base.astro';
           <nav id="search-results-pagination" class="search-results-pagination margin-top-4" hidden aria-label="Search results pages"></nav>
           <aside id="search-no-results-suggestions" class="usa-alert usa-alert--info margin-top-4" aria-live="polite" hidden>
             <div class="usa-alert__body">
-              <h2 class="usa-alert__heading">No results were found</h2>
-              <p class="usa-alert__text">Please refer to these links:</p>
+              <h2 class="usa-alert__heading">Sorry, no results were found</h2>
+              <p class="usa-alert__text">Here are some links to help you find your way.</p>
               <ul class="usa-list margin-bottom-0">
                 <li><a class="usa-link" href="/data/explore">Explore available data</a></li>
                 <li><a class="usa-link" href="/data/analyze">Analyze data</a></li>
