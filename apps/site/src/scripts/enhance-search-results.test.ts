@@ -11,7 +11,13 @@ import {
 
 function renderTemplates() {
   document.body.innerHTML = `
-    <template id="search-result-badge-template">
+    <template id="search-result-badge-news-template">
+      <span class="shared-badge">News</span>
+    </template>
+    <template id="search-result-badge-event-template">
+      <span class="shared-badge">Event</span>
+    </template>
+    <template id="search-result-badge-page-template">
       <span class="shared-badge">Page</span>
     </template>
     <template id="search-result-breadcrumb-template">
@@ -47,11 +53,11 @@ function mountSearchResults(records: SearchResultRecord[]) {
   return container;
 }
 
-function createResult() {
+function createResult(href = '/news/latest-updates/example') {
   const result = document.createElement('li');
   result.className = 'pf-result';
   result.innerHTML = `
-    <a class="pf-result-link" href="/news/latest-updates/example">Example</a>
+    <a class="pf-result-link" href="${href}">Example</a>
     <div data-search-result-breadcrumb-slot></div>
     <p data-search-result-badge-slot></p>
   `;
@@ -99,16 +105,34 @@ describe('search result enhancements', () => {
     renderTemplates();
   });
 
-  it('uses shared templates for the page badge and breadcrumb', () => {
-    const result = createResult();
+  it('uses the News badge for latest-updates results', () => {
+    const result = createResult('/news/latest-updates/example');
+    document.body.appendChild(result);
+
+    enhanceSearchResult(result);
+
+    expect(result.querySelector('.shared-badge')).toHaveTextContent('News');
+    expect(
+      result.querySelector('[data-search-result-breadcrumb]'),
+    ).toHaveTextContent('News > Latest Updates > Example');
+  });
+
+  it('uses the Event badge for events results', () => {
+    const result = createResult('/news/events/2026/07/community-hours');
+    document.body.appendChild(result);
+
+    enhanceSearchResult(result);
+
+    expect(result.querySelector('.shared-badge')).toHaveTextContent('Event');
+  });
+
+  it('uses the Page badge for other results', () => {
+    const result = createResult('/data/explore');
     document.body.appendChild(result);
 
     enhanceSearchResult(result);
 
     expect(result.querySelector('.shared-badge')).toHaveTextContent('Page');
-    expect(
-      result.querySelector('[data-search-result-breadcrumb]'),
-    ).toHaveTextContent('News > Latest Updates > Example');
   });
 
   it('uses the shared breadcrumb and standard link style for Default UI results', () => {

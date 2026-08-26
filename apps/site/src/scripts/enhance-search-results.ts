@@ -1,4 +1,5 @@
 import { getBreadcrumbLabel } from '../util/get-breadcrumb-label';
+import { getSearchResultKind } from '../util/get-search-result-kind';
 
 const SEARCH_RESULTS_LAYOUT_SELECTOR = '#search-results-layout';
 const SEARCH_RESULTS_FILTERS_SELECTOR = '#search-results-filters';
@@ -625,7 +626,8 @@ export function enhanceSearchResult(result: Element): void {
 
   const badgeSlot = result.querySelector('[data-search-result-badge-slot]');
   if (badgeSlot && !badgeSlot.hasChildNodes()) {
-    const badge = cloneTemplateElement('search-result-badge-template');
+    const kind = getSearchResultKind(link.href, window.location.origin);
+    const badge = cloneTemplateElement(`search-result-badge-${kind}-template`);
     if (badge) {
       badgeSlot.appendChild(badge);
     }
