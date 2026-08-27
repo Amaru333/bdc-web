@@ -24,15 +24,13 @@ function renderTemplates() {
       <p data-search-result-breadcrumb></p>
     </template>
     <div id="search-results-layout">
-      <aside id="search-results-filters" hidden></aside>
-      <div>
+      <div id="search-results">
+        <div id="search-results-filters" hidden></div>
+        <p id="search-results-message" class="search-results-message"></p>
         <div id="search-results-toolbar" hidden></div>
-        <div id="search-results">
-          <p id="search-results-message" class="search-results-message"></p>
-          <ol id="search-results-list" class="search-results-list"></ol>
-        </div>
-        <nav id="search-results-pagination" hidden></nav>
+        <ol id="search-results-list" class="search-results-list"></ol>
       </div>
+      <nav id="search-results-pagination" hidden></nav>
     </div>
   `;
 }
@@ -201,7 +199,7 @@ describe('search result enhancements', () => {
     });
   });
 
-  it('renders section filters from all search results', async () => {
+  it('renders latest updates and events toggles below the search results', async () => {
     mountSearchResults([
       createRecord('Alpha update', '/news/latest-updates/alpha', 0),
       createRecord('Explore data', '/data/explore', 1),
@@ -216,9 +214,14 @@ describe('search result enhancements', () => {
       ).not.toHaveAttribute('hidden');
     });
 
-    expect(document.body).toHaveTextContent('Section');
-    expect(document.body).toHaveTextContent('Data');
-    expect(document.body).toHaveTextContent('News');
+    expect(document.body).toHaveTextContent('Show latest updates');
+    expect(document.body).toHaveTextContent('Show events');
+    expect(document.body).toHaveTextContent('Clear filter');
+    expect(
+      document.querySelector('#search-filter-latest-updates'),
+    ).toBeInTheDocument();
+    expect(document.querySelector('#search-filter-events')).toBeInTheDocument();
+    expect(document.querySelector('#search-filter-news')).not.toBeInTheDocument();
   });
 
   it('filters all loaded results before paginating', async () => {
@@ -235,23 +238,25 @@ describe('search result enhancements', () => {
 
     mountSearchResults(records);
 
-    const newsFilter = await vi.waitFor(() => {
+    const latestUpdatesFilter = await vi.waitFor(() => {
       const input = document.querySelector<HTMLInputElement>(
-        '#search-filter-news',
+        '#search-filter-latest-updates',
       );
       expect(input).toBeInTheDocument();
       if (!input) {
-        throw new Error('Expected #search-filter-news to be in the document');
+        throw new Error(
+          'Expected #search-filter-latest-updates to be in the document',
+        );
       }
       return input;
     });
 
-    newsFilter.checked = true;
-    newsFilter.dispatchEvent(new Event('change', { bubbles: true }));
+    latestUpdatesFilter.checked = true;
+    latestUpdatesFilter.dispatchEvent(new Event('change', { bubbles: true }));
 
     await vi.waitFor(() => {
       expect(document.body).toHaveTextContent(
-        'Showing 11 of 12 matching pages',
+        'Showing 11 of 12 matching results',
       );
       expect(
         document.querySelectorAll('#search-results-list .pagefind-ui__result-link'),
@@ -272,7 +277,55 @@ describe('search result enhancements', () => {
       expect(document.body).toHaveTextContent('Page 2 of 2');
     });
 
-    expect(window.location.search).toContain('section=News');
+    expect(window.location.search).toContain('kind=news');
+  });
+
+  it('filters events separately from other news pages', async () => {
+    mountSearchResults([
+      createRecord('Alpha update', '/news/latest-updates/alpha', 0),
+      createRecord(
+        'Community hours',
+        '/news/events/2026/07/community-hours',
+        1,
+      ),
+      createRecord('News coverage', '/news/news-coverage', 2),
+    ]);
+
+    const eventsFilter = await vi.waitFor(() => {
+      const input = document.querySelector<HTMLInputElement>(
+        '#search-filter-events',
+      );
+      expect(input).toBeInTheDocument();
+      if (!input) {
+        throw new Error('Expected #search-filter-events to be in the document');
+      }
+      return input;
+    });
+
+    eventsFilter.checked = true;
+    eventsFilter.dispatchEvent(new Event('change', { bubbles: true }));
+
+    await vi.waitFor(() => {
+      const titles = Array.from(
+        document.querySelectorAll('#search-results-list .pagefind-ui__result-link'),
+      ).map((link) => link.textContent);
+      expect(titles).toEqual(['Community hours']);
+      expect(document.body).toHaveTextContent('Showing 1 of 3 matching results');
+    });
+
+    expect(window.location.search).toContain('kind=event');
+
+    document
+      .querySelector<HTMLButtonElement>('[data-clear-search-filters]')
+      ?.click();
+
+    await vi.waitFor(() => {
+      expect(
+        document.querySelectorAll('#search-results-list .pagefind-ui__result-link'),
+      ).toHaveLength(3);
+    });
+
+    expect(window.location.search).not.toContain('kind=');
   });
 
   it('sorts all loaded results before paginating', async () => {

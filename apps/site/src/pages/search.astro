@@ -6,34 +6,32 @@ import Base from "@layouts/Base.astro";
   <section class="usa-section">
     <div class="grid-container">
       <h1>Search Results</h1>
-      <div id="search-results-layout" class="grid-row grid-gap margin-top-4">
-        <aside id="search-results-filters" class="tablet:grid-col-4 margin-bottom-2 tablet:margin-bottom-0 search-results-filters" hidden aria-label="Search filters"></aside>
-        <div class="tablet:grid-col-8 search-results-main">
-          <div id="search-results-toolbar" hidden></div>
-          <div id="search-results">
-            <div class="search-results-header">
-              <form id="search-results-form" class="search-results-form margin-bottom-0" role="search">
-                <label class="usa-sr-only" for="search-results-query">Search site</label>
-                <input class="usa-input search-results-form__input" id="search-results-query" name="q" type="text" inputmode="search" enterkeyhint="search" placeholder="Search site..." autocomplete="off" />
-              </form>
-              <p id="search-results-message" class="search-results-message" aria-live="polite"></p>
-            </div>
-            <ol id="search-results-list" class="search-results-list usa-list usa-list--unstyled margin-0"></ol>
+      <div id="search-results-layout" class="margin-top-4">
+        <div id="search-results">
+          <div class="search-results-header">
+            <form id="search-results-form" class="search-results-form margin-bottom-0" role="search">
+              <label class="usa-sr-only" for="search-results-query">Search site</label>
+              <input class="usa-input search-results-form__input" id="search-results-query" name="q" type="text" inputmode="search" enterkeyhint="search" placeholder="Search site..." autocomplete="off" />
+            </form>
+            <div id="search-results-filters" class="search-results-filters" hidden></div>
+            <p id="search-results-message" class="search-results-message" aria-live="polite"></p>
           </div>
-          <nav id="search-results-pagination" class="search-results-pagination margin-top-4" hidden aria-label="Search results pages"></nav>
-          <aside id="search-no-results-suggestions" class="usa-alert usa-alert--info margin-top-4" aria-live="polite" hidden>
-            <div class="usa-alert__body">
-              <h2 class="usa-alert__heading">Sorry, no results were found</h2>
-              <p class="usa-alert__text">Here are some links to help you find your way.</p>
-              <ul class="usa-list margin-bottom-0">
-                <li><a class="usa-link" href="/data/explore">Explore available data</a></li>
-                <li><a class="usa-link" href="/data/analyze">Analyze data</a></li>
-                <li><a class="usa-link" href="/data/learning-and-training">Learning and training</a></li>
-                <li><a class="usa-link" href="/help/contact-and-support">Contact and support</a></li>
-              </ul>
-            </div>
-          </aside>
+          <div id="search-results-toolbar" hidden></div>
+          <ol id="search-results-list" class="search-results-list usa-list usa-list--unstyled margin-0"></ol>
         </div>
+        <nav id="search-results-pagination" class="search-results-pagination margin-top-4" hidden aria-label="Search results pages"></nav>
+        <aside id="search-no-results-suggestions" class="usa-alert usa-alert--info margin-top-4" aria-live="polite" hidden>
+          <div class="usa-alert__body">
+            <h2 class="usa-alert__heading">Sorry, no results were found</h2>
+            <p class="usa-alert__text">Here are some links to help you find your way.</p>
+            <ul class="usa-list margin-bottom-0">
+              <li><a class="usa-link" href="/data/explore">Explore available data</a></li>
+              <li><a class="usa-link" href="/data/analyze">Analyze data</a></li>
+              <li><a class="usa-link" href="/data/learning-and-training">Learning and training</a></li>
+              <li><a class="usa-link" href="/help/contact-and-support">Contact and support</a></li>
+            </ul>
+          </div>
+        </aside>
       </div>
     </div>
   </section>
@@ -151,24 +149,30 @@ import Base from "@layouts/Base.astro";
   }
 
   .search-results-filters {
-    align-self: flex-start;
+    margin-top: 0.75rem;
   }
 
-  .search-results-filters__title {
-    font-family: inherit;
-    font-size: 1rem;
-    line-height: 1.2;
+  .search-results-filters__toggles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 1.5rem;
+    row-gap: 0.5rem;
   }
 
+  #search-results-filters .usa-checkbox,
   #search-results-filters .usa-checkbox__label,
-  #search-results-filters .usa-label,
-  #search-results-filters .usa-legend,
   #search-results-toolbar .usa-label {
     margin-top: 0;
   }
 
   #search-results-filters .usa-checkbox + .usa-checkbox {
-    margin-top: 0.5rem;
+    margin-top: 0;
+  }
+
+  #search-results-filters [data-clear-search-filters]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .search-results-pagination__status {

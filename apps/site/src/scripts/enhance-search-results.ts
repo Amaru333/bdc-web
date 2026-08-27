@@ -1,5 +1,8 @@
 import { getBreadcrumbLabel } from '../util/get-breadcrumb-label';
-import { getSearchResultKind } from '../util/get-search-result-kind';
+import {
+  getSearchResultKind,
+  type SearchResultKind,
+} from '../util/get-search-result-kind';
 
 const SEARCH_RESULTS_LAYOUT_SELECTOR = '#search-results-layout';
 const SEARCH_RESULTS_FILTERS_SELECTOR = '#search-results-filters';
@@ -10,9 +13,28 @@ const SEARCH_RESULTS_MESSAGE_SELECTOR = '#search-results-message';
 const RESULT_SELECTOR = '.pf-result, .pagefind-ui__result';
 const LINK_SELECTOR = '.pf-result-link, .pagefind-ui__result-link';
 const SEARCH_NO_RESULTS_HELPER_SELECTOR = '#search-no-results-suggestions';
-const SEARCH_SECTION_PARAM = 'section';
+const SEARCH_KIND_PARAM = 'kind';
 const SEARCH_SORT_PARAM = 'sort';
 const SEARCH_PAGE_SIZE = 10;
+
+type SearchKindFilter = Exclude<SearchResultKind, 'page'>;
+
+const SEARCH_KIND_FILTERS: ReadonlyArray<{
+  kind: SearchKindFilter;
+  id: string;
+  label: string;
+}> = [
+  {
+    kind: 'news',
+    id: 'search-filter-latest-updates',
+    label: 'Show latest updates',
+  },
+  {
+    kind: 'event',
+    id: 'search-filter-events',
+    label: 'Show events',
+  },
+];
 
 type SortOption = 'relevance' | 'title-asc' | 'title-desc' | 'section-asc';
 
@@ -26,6 +48,7 @@ export type SearchResultRecord = {
 type ProcessedSearchResult = SearchResultRecord & {
   breadcrumb: string;
   section: string;
+  kind: SearchResultKind;
 };
 
 type SearchResultsState = {
@@ -95,28 +118,31 @@ function parseSortOption(value: string | null): SortOption {
   return 'relevance';
 }
 
+function isSearchKindFilter(value: string): value is SearchKindFilter {
+  return value === 'news' || value === 'event';
+}
+
+function parseSelectedKinds(values: Iterable<string>): Set<SearchKindFilter> {
+  return new Set(Array.from(values).filter(isSearchKindFilter));
+}
+
 function getSearchStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return {
-    selectedSections: new Set(
-      params
-        .getAll(SEARCH_SECTION_PARAM)
-        .map((section) => section.trim())
-        .filter(Boolean),
-    ),
+    selectedKinds: parseSelectedKinds(params.getAll(SEARCH_KIND_PARAM)),
     sort: parseSortOption(params.get(SEARCH_SORT_PARAM)),
   };
 }
 
 function updateSearchStateInUrl(
-  selectedSections: Set<string>,
+  selectedKinds: Set<SearchKindFilter>,
   sort: SortOption,
 ): void {
   const url = new URL(window.location.href);
 
-  url.searchParams.delete(SEARCH_SECTION_PARAM);
-  selectedSections.forEach((section) => {
-    url.searchParams.append(SEARCH_SECTION_PARAM, section);
+  url.searchParams.delete(SEARCH_KIND_PARAM);
+  selectedKinds.forEach((kind) => {
+    url.searchParams.append(SEARCH_KIND_PARAM, kind);
   });
 
   if (sort === 'relevance') {
@@ -138,6 +164,7 @@ function processSearchResult(
     ...record,
     breadcrumb,
     section,
+    kind: getSearchResultKind(record.url, window.location.origin),
   };
 }
 
@@ -175,87 +202,51 @@ function sortSearchResults(
   return sorted;
 }
 
-function matchesSectionFilter(
+function matchesKindFilter(
   result: ProcessedSearchResult,
-  selectedSections: Set<string>,
+  selectedKinds: Set<SearchKindFilter>,
 ): boolean {
-  if (selectedSections.size === 0) return true;
-  return selectedSections.has(result.section);
+  if (selectedKinds.size === 0) return true;
+  return isSearchKindFilter(result.kind) && selectedKinds.has(result.kind);
 }
 
 function renderSearchFilters(
   filters: HTMLElement,
-  results: ProcessedSearchResult[],
-  selectedSections: Set<string>,
+  selectedKinds: Set<SearchKindFilter>,
 ): void {
-  const counts = new Map<string, number>();
-  results.forEach((result) => {
-    if (!result.section) return;
-    counts.set(result.section, (counts.get(result.section) ?? 0) + 1);
-  });
-
-  const sectionOptions = Array.from(counts.entries()).sort(([left], [right]) =>
-    left.localeCompare(right),
-  );
-
-  const sectionMarkup =
-    sectionOptions.length > 0
-      ? sectionOptions
-          .map(([section, count]) => {
-            const id = `search-filter-${section
-              .toLowerCase()
-              .replaceAll(/[^a-z0-9]+/g, '-')}`;
-
-            return `
-              <div class="usa-checkbox margin-x-3">
-                <input
-                  class="usa-checkbox__input"
-                  id="${id}"
-                  name="search-filter-section"
-                  type="checkbox"
-                  value="${escapeHtml(section)}"
-                  ${selectedSections.has(section) ? 'checked' : ''}
-                />
-                <label class="usa-checkbox__label font-ui-xs" for="${id}">
-                  ${escapeHtml(section)}
-                  <span class="text-base-light"> (${count})</span>
-                </label>
-              </div>
-            `;
-          })
-          .join('')
-      : '<p class="usa-hint font-body-xs margin-x-3 margin-y-0">Filters will appear when results are available.</p>';
-
-  const clearAllMarkup =
-    selectedSections.size > 0
-      ? `
-          <button
-            type="button"
-            class="usa-button usa-button--unstyled font-body-xs"
-            data-clear-search-filters
-          >
-            Clear all
-          </button>
-        `
-      : '';
+  const checkboxMarkup = SEARCH_KIND_FILTERS.map(({ kind, id, label }) => {
+    return `
+      <div class="usa-checkbox">
+        <input
+          class="usa-checkbox__input"
+          id="${id}"
+          name="search-filter-kind"
+          type="checkbox"
+          value="${kind}"
+          ${selectedKinds.has(kind) ? 'checked' : ''}
+        />
+        <label class="usa-checkbox__label font-ui-xs" for="${id}">
+          ${label}
+        </label>
+      </div>
+    `;
+  }).join('');
 
   filters.innerHTML = `
-    <div class="search-results-filters__panel border border-base-lighter radius-sm bg-white overflow-hidden">
-      <div class="bg-base-lightest padding-x-3 padding-y-1 border-bottom border-base-lighter padding-top-2">
-        <div class="display-flex flex-justify flex-align-center">
-          <h2 class="search-results-filters__title margin-0 text-bold">Filters</h2>
-          ${clearAllMarkup}
-        </div>
+    <fieldset class="usa-fieldset margin-0 padding-0 border-0">
+      <legend class="usa-sr-only">Filter results</legend>
+      <div class="search-results-filters__toggles">
+        ${checkboxMarkup}
+        <button
+          type="button"
+          class="usa-button usa-button--unstyled font-body-xs"
+          data-clear-search-filters
+          ${selectedKinds.size === 0 ? 'disabled' : ''}
+        >
+          Clear filter
+        </button>
       </div>
-      <section class="padding-y-2" aria-labelledby="search-filter-section-heading">
-        <h3 id="search-filter-section-heading" class="usa-legend text-bold margin-y-0 margin-x-3">
-          Section
-        </h3>
-        <div class="margin-top-2">
-          ${sectionMarkup}
-        </div>
-      </section>
-    </div>
+    </fieldset>
   `;
 
   filters.hidden = false;
@@ -269,10 +260,10 @@ function renderSearchToolbar(
 ): void {
   const countText =
     totalCount === 0
-      ? '0 matching pages'
+      ? '0 matching results'
       : visibleCount < totalCount
-        ? `Showing ${visibleCount} of ${totalCount} matching pages`
-        : `${totalCount} matching pages`;
+        ? `Showing ${visibleCount} of ${totalCount} matching results`
+        : `${totalCount} matching result${totalCount === 1 ? '' : 's'}`;
 
   toolbar.innerHTML = `
     <div class="search-results-toolbar__bar display-block tablet:display-flex tablet:flex-justify flex-align-center padding-x-3 padding-y-2 bg-base-lightest border border-base-lighter radius-sm margin-bottom-3">
@@ -386,35 +377,30 @@ function renderSearchMessage(
   query: string,
   totalCount: number,
 ): void {
-  if (!query) {
-    message.textContent = '';
-    return;
-  }
-
-  if (totalCount === 0) {
+  if (query && totalCount === 0) {
     message.textContent = `No results found for "${query}"`;
     return;
   }
 
-  message.textContent = `${totalCount} result${totalCount === 1 ? '' : 's'} for ${query}`;
+  message.textContent = '';
 }
 
 function getSearchControlsState(container: HTMLElement) {
   if (!container.dataset.searchControlsStateReady) {
     const state = getSearchStateFromUrl();
-    container.dataset.searchSections = JSON.stringify(
-      Array.from(state.selectedSections),
+    container.dataset.searchKinds = JSON.stringify(
+      Array.from(state.selectedKinds),
     );
     container.dataset.searchSort = state.sort;
     container.dataset.searchControlsStateReady = 'true';
   }
 
-  const selectedSections = new Set<string>(
-    JSON.parse(container.dataset.searchSections ?? '[]') as string[],
+  const selectedKinds = parseSelectedKinds(
+    JSON.parse(container.dataset.searchKinds ?? '[]') as string[],
   );
 
   return {
-    selectedSections,
+    selectedKinds,
     sort: parseSortOption(container.dataset.searchSort ?? null),
   };
 }
@@ -463,25 +449,10 @@ export function renderSearchResultsView(container: HTMLElement): void {
 
   const { allResults, query, page } = getSearchResultsState(container);
   const processedResults = allResults.map(processSearchResult);
-  const { selectedSections, sort } = getSearchControlsState(container);
-
-  const availableSections = new Set(
-    processedResults.map((result) => result.section).filter(Boolean),
-  );
-  const normalizedSections = new Set(
-    Array.from(selectedSections).filter((section) =>
-      availableSections.has(section),
-    ),
-  );
-
-  if (normalizedSections.size !== selectedSections.size) {
-    container.dataset.searchSections = JSON.stringify(
-      Array.from(normalizedSections),
-    );
-  }
+  const { selectedKinds, sort } = getSearchControlsState(container);
 
   const filteredResults = processedResults.filter((result) =>
-    matchesSectionFilter(result, normalizedSections),
+    matchesKindFilter(result, selectedKinds),
   );
   const sortedResults = sortSearchResults(filteredResults, sort);
   const totalPages = Math.max(
@@ -507,14 +478,14 @@ export function renderSearchResultsView(container: HTMLElement): void {
     filters.hidden = true;
     toolbar.hidden = true;
     pagination.hidden = true;
-    updateSearchStateInUrl(normalizedSections, sort);
+    updateSearchStateInUrl(selectedKinds, sort);
     return;
   }
 
-  renderSearchFilters(filters, processedResults, normalizedSections);
+  renderSearchFilters(filters, selectedKinds);
   renderSearchToolbar(toolbar, allResults.length, sortedResults.length, sort);
   renderSearchPagination(pagination, currentPage, totalPages);
-  updateSearchStateInUrl(normalizedSections, sort);
+  updateSearchStateInUrl(selectedKinds, sort);
 }
 
 export function initSearchResultsControls(container: HTMLElement): void {
@@ -542,16 +513,14 @@ export function initSearchResultsControls(container: HTMLElement): void {
     }
 
     if (target.matches('.usa-checkbox__input')) {
-      const selectedSections = new Set(
+      const selectedKinds = parseSelectedKinds(
         Array.from(
           layout.querySelectorAll<HTMLInputElement>(
             '.usa-checkbox__input:checked',
           ),
         ).map((input) => input.value),
       );
-      container.dataset.searchSections = JSON.stringify(
-        Array.from(selectedSections),
-      );
+      container.dataset.searchKinds = JSON.stringify(Array.from(selectedKinds));
       setSearchResultsPage(container, 1);
       renderSearchResultsView(container);
     }
@@ -562,7 +531,7 @@ export function initSearchResultsControls(container: HTMLElement): void {
     if (!(target instanceof HTMLElement)) return;
 
     if (target.matches('[data-clear-search-filters]')) {
-      container.dataset.searchSections = '[]';
+      container.dataset.searchKinds = '[]';
       setSearchResultsPage(container, 1);
       renderSearchResultsView(container);
       return;
