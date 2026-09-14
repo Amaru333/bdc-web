@@ -214,6 +214,13 @@ Hostnames listed in `DEFAULT_IGNORED_HOSTNAMES` in `scripts/link-exclusions.mjs`
 npm run links:online -- --verbose
 ```
 
+Add `--download` to write only `ERROR` rows to a CSV at the repo root (`lychee-errors.csv`). Pass a path to choose a different file:
+
+```bash
+npm run links:online -- --download
+npm run links:offline -- --download ./site-link-errors.csv
+```
+
 Manual CI runs provide the same behavior through the **Include normally ignored links in external checks** option. Scheduled checks continue to apply the default hostname list.
 
 ### Before opening a PR

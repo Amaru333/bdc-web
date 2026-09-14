@@ -6,6 +6,8 @@ dist
 **/.env.*
 test-results
 .lycheecache
+.lychee-*-report.json
+lychee-errors.csv
 packages/ui-astro/dev/icon-gallery/dist
 
 # apps/freshdesk
