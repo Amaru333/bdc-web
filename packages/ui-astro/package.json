@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "description": "Shared Astro UI components for BDC apps",
+  "scripts": {
+    "icons:gallery": "node ./dev/icon-gallery/build.mjs && node ./dev/icon-gallery/serve.mjs",
+    "icons:gallery:build": "node ./dev/icon-gallery/build.mjs"
+  },
   "files": [
     "src"
   ],
@@ -27,6 +31,7 @@
     "./layout/PageSection.astro": "./src/layout/PageSection.astro",
     "./layout/TwoColumnSection.astro": "./src/layout/TwoColumnSection.astro",
     "./link/Link.astro": "./src/link/Link.astro",
+    "./table/Table.astro": "./src/table/Table.astro",
     "./tag/Badge.astro": "./src/tag/Badge.astro",
     "./tag/Tag.astro": "./src/tag/Tag.astro",
     "./tooltip/InfoTooltip.astro": "./src/tooltip/InfoTooltip.astro",

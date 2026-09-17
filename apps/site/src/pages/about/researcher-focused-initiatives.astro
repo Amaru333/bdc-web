@@ -1,0 +1,172 @@
+---
+import Card from '@bdc/ui-astro/card/Card.astro';
+import IconBadge from '@bdc/ui-astro/icon/IconBadge.astro';
+import Hero from '@bdc/ui-astro/layout/Hero.astro';
+import Link from '@bdc/ui-astro/link/Link.astro';
+import InPageNav from '@components/layout/InPageNav.astro';
+import NextStepsAlert from '@components/NextStepsAlert.astro';
+import Notice from '@components/Notice.astro';
+import Base from '@layouts/Base.astro';
+---
+
+<Base title="Researcher-Focused Initiatives">
+  <Hero
+    eyebrow="About BDC"
+    titleLines={['Researcher-Focused', 'Initiatives']}
+    description="See how BDC works with select research initiatives to bring valuable data and resources into the ecosystem and expand how researchers can use them."
+  >
+    <div slot="visual" class="width-full maxw-mobile-lg">
+      <Card variant="panel">
+        <div class="display-flex flex-align-center margin-bottom-1">
+          <IconBadge icon="people" tone="secondary" size={6} iconSize={4} class="margin-right-105" />
+        </div>
+        <p class="font-sans-sm text-bold text-base-dark margin-top-1 ">More than hosting data</p>
+        <p class="margin-top-2 margin-bottom-0 text-base line-height-sans-4">
+          BDC works with research initiatives to make complex data more accessible, usable, and ready for analysis.
+        </p>
+      </Card>
+    </div>
+  </Hero>
+
+  <section id="community-list" class="usa-section padding-top-4">
+    <div class="grid-container">
+      <InPageNav>
+        <p>
+          BDC collaborates with major research initiatives and programs by 
+          hosting their data, integrating resources where appropriate, and 
+          providing analytical tools, applications, workflows, and secure 
+          workspaces.
+        </p>
+        <p>
+          To support researchers from these initiatives when they start using the
+          ecosystem, BDC develops and deploys enhancements, tailors the user
+          onboarding process, and encourages participation in the greater BDC
+          community. Researchers may use BDC to analyze scientific data collected
+          from research protocols.
+        </p>
+
+        <div class="margin-bottom-8">
+          <section id="topmed" class="border-top-1px border-base-light margin-top-6">
+            <h2>TOPMed</h2>
+            <p>
+              TOPMed data in BDC includeswhole-genome sequencing and other omics data, 
+              including metabolic profiles, epigenomics, protein and RNA expression 
+              patterns which have been processed by the TOPMed program. These omic data 
+              is integration with rich clinical, behavioral, imaging, environmental, and 
+              molecular data from studies spanning heart, lung, blood, and sleep research. 
+              BDC is working with TOPMed to efficiently make both omic and phenotypic data 
+              available in BDC, and supporting the TOPMed research community conduct 
+              analyses. Furthermore, BDC hosts and provides secure access to the 
+              pre-release data within the TOPMed Exchange Area (EA) for TOPMed 
+              investigators with approved access. <Link to="/help/contact-bdc">Contact 
+              BDC</Link> if you are interested in accessing EA data in BDC.
+            </p>
+            <p class="text-italic">
+              For genotype imputation using the TOPMed reference panel, refer to the 
+              <Link to="https://imputation.biodatacatalyst.nhlbi.nih.gov/">TOPMed Imputation Server</Link>.
+            </p>
+              <Notice icon="database" tone="cool" size={5}>
+                <Link to={`/about/studies/topmed`}>See a list of the TOPMed data available in BDC</Link>
+              </Notice>
+
+          </section>
+
+          <section id="recover" class="border-top-1px border-base-light margin-top-6">
+            <h2>RECOVER</h2>
+            <p>
+              RECOVER data in BDC includes observational cohort, electronic health record, 
+              pathobiology, tissue pathology, wearable, and clinical trial data supporting 
+              research into Long COVID. BDC provides a secure environment for accessing 
+              and analyzing these data and works with RECOVER to support data availability 
+              and use across the ecosystem. BDC works with RECOVER to confirm 
+              de-identification of data before release and ensure efficient search of this 
+              data throughout the BDC ecosystem.
+            </p>
+            <p>
+              Researchers can use RECOVER data in BDC to investigate Long COVID symptoms, 
+              risk factors, disease progression, and potential treatments. Data dictionaries, 
+              release notes, data use agreements, and other resources are available through 
+              <Link to="https://recovercovid.org/data">RECOVER</Link> to help researchers 
+              understand and work with these datasets.
+            </p>
+            <Notice icon="database" tone="cool" size={5}>
+              <Link to={`/about/studies/recover`}>See a list of the RECOVER data available in BDC</Link>
+            </Notice>
+          </section>
+
+          <section id="heartshare" class="border-top-1px border-base-light margin-top-6">
+            <h2>HeartShare</h2>
+            <p>
+              HeartShare is a program designed to conduct large-scale analyses of 
+              phenotypic data, images, and omics from patients with heart failure with 
+              preserved ejection fraction (HFpEF) and controls. The program aims to 
+              characterize disease mechanisms and identify new therapeutic targets.
+            </p>
+            <p>
+              The study is comprised of both retrospective and prospective components. 
+              Retrospectively, HeartShare aggregates and harmonizes data, including 
+              images and omics, from previously completed cohort studies and clinical 
+              trials. Prospectively, data is generated from a registry of up to 10,000 
+              participants and a deep phenotyping cohort of up to 2,000 participants. Both 
+              the retrospective and prospective cohorts capture baseline and longitudinal 
+              data. BDC is working with HeartShare to ensure their interested data is 
+              available in BDC, along with supporting investigators to ensure data meets 
+              needs for desired analyses.
+            </p>
+            <Notice icon="database" tone="cool" size={5}>
+              <Link to={`/about/studies/heartshare`}>See a list of the HeartShare data available in BDC</Link>
+            </Notice>
+          </section>
+
+          <section id="nsrr" class="border-top-1px border-base-light margin-top-6">
+            <h2>National Sleep Research Resource (NSRR)</h2>
+            <p>
+              <Link to="https://sleepdata.org/">National Sleep Research Resource (NSRR)</Link>
+              {' '}
+              brings polysomnography, actigraphy, questionnaire, and other sleep data
+              from cohorts and clinical trials to BDC for secondary research in sleep
+              and circadian science. BDC is working with NSRR to expand support for
+              sleep data and analysis tools, improve sleep metadata and data models,
+              and develop AI-assisted approaches to data harmonization.
+            </p>
+            <p>
+              The NSRR encourages active engagement by the sleep and circadian
+              communities, aiming to expand the breadth and depth of the sleep-related
+              data and understand optimal methods of sleep data analysis.
+            </p>
+            <Notice icon="database" tone="cool" size={5}>
+              <Link to={`/about/studies/nsrr`}>See a list of the NSRR data available in BDC</Link>
+            </Notice>
+          </section>
+          <section id="rmip" class="border-top-1px border-base-light margin-top-6">
+            <h2>Regenerative Medicine Innovation Project (RMIP)</h2>
+            <p>
+              BDC is supporting the development of a centralized research resource for
+              {' '}
+              <Link to="https://www.nih.gov/regenerative-medicine-innovation-project-rmip">
+                Regenerative Medicine Innovation Project (RMIP)
+              </Link>
+              {' '}
+              data, with standardized data aggregation and processing across multiple
+              data-generation sites. BDC also supports study registration and data
+              ingest, helping make these data available for future research and reuse.
+            </p>
+          </section>
+        </div>
+
+        <NextStepsAlert
+          heading="Want to propose a new initiative?"
+        >
+          <p class="usa-prose">
+            Research initiatives interested in collaborating with BDC can express 
+            their interest with our Contact form. 
+          </p>
+
+          <Link to="/help/contact-bdc">
+            → Contact Us
+          </Link>
+        </NextStepsAlert>
+      </InPageNav>
+    </div>
+  </section>
+</Base>

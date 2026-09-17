@@ -21,11 +21,22 @@ const customIcon = customIcons[name];
   aria-hidden={isDecorative ? 'true' : undefined}
   role={isDecorative ? undefined : 'img'}
   focusable="false"
-  viewBox={customIcon?.viewBox}
+  viewBox={customIcon?.viewBox ?? '0 0 24 24'}
 >
   {label && <title>{label}</title>}
   {customIcon ? (
-    customIcon.paths.map((path) => <path d={path} />)
+    [
+      ...customIcon.paths.map((path) => <path d={path} fill="currentColor" />),
+      ...(customIcon.strokedPaths ?? []).map((path) => (
+        <path
+          d={path}
+          fill="none"
+          stroke="currentColor"
+          stroke-width={customIcon.strokeWidth}
+          stroke-miterlimit={customIcon.strokeMiterlimit}
+        />
+      )),
+    ]
   ) : (
     <use href={`${spriteUrl}#${name}`} />
   )}

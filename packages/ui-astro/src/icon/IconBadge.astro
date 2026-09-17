@@ -4,8 +4,8 @@ import Icon from './Icon.astro';
 interface Props {
   icon: string;
   tone?: 'secondary' | 'cool' | 'warm' | 'neutral';
-  size?: 3 | 4 | 5 | 6;
-  iconSize?: 3 | 4 | 5;
+  size?: 3 | 4 | 5 | 6 | 7 | 8 | 9;
+  iconSize?: 3 | 4 | 5 | 6 | 7;
   label?: string;
   class?: string;
 }
@@ -31,11 +31,12 @@ const sizeClass = `height-${size} width-${size}`;
 
 <span
   class:list={[
-    'radius-pill flex-shrink-0 display-inline-flex flex-justify-center flex-align-center padding-05',
+    'radius-pill flex-shrink-0 display-inline-flex flex-justify-center flex-align-center',
     toneClasses[tone],
     sizeClass,
     className,
   ]}
+  style="aspect-ratio: 1;"
 >
   <Icon name={icon} size={iconSize} label={label} />
 </span>
