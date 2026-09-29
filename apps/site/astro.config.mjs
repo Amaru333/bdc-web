@@ -8,6 +8,7 @@ import { defineConfig } from 'astro/config';
 import favicons from 'astro-favicons';
 import robotsTxt from 'astro-robots-txt';
 import { loadEnv } from 'vite';
+import markdownExport from './src/integrations/markdown/index.mjs';
 
 const siteUrl = process.env.SITE_URL || 'https://biodatacatalyst.nhlbi.nih.gov';
 
@@ -95,6 +96,7 @@ export default defineConfig({
     sitemap(),
     favicons(),
     robotsTxt(robotsTxtConfig),
+    markdownExport(),
   ],
   markdown: {
     processor: unified({

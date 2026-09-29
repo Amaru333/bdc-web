@@ -42,6 +42,8 @@ jobs:
 
       - run: npm test
 
+      - run: npm run test:markdown -w @bdc/site
+
   build:
     name: Build
     needs: [lint, test]
@@ -96,3 +98,74 @@ jobs:
       - name: Accessibility audit
         working-directory: apps/site
         run: node a11y/full.js
+
+  publish-markdown:
+    name: Publish Markdown
+    runs-on: ubuntu-latest
+    needs: [build, a11y]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    concurrency:
+      group: publish-site-markdown
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - name: Check publishing credentials
+        id: credentials
+        env:
+          TOKEN: ${{ secrets.MARKDOWN_REPO_TOKEN }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo 'configured=true' >> "$GITHUB_OUTPUT"
+          else
+            echo '::notice::Set MARKDOWN_REPO_TOKEN to enable Markdown publication.'
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.credentials.outputs.configured == 'true'
+        with:
+          path: source
+
+      - name: Skip superseded builds
+        if: steps.credentials.outputs.configured == 'true'
+        id: current
+        working-directory: source
+        run: |
+          latest=$(git ls-remote origin refs/heads/main | cut -f1)
+          if [ "$latest" = "$GITHUB_SHA" ]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/download-artifact@v4
+        if: steps.current.outputs.publish == 'true'
+        with:
+          name: site-dist
+          path: build-output
+
+      - name: Check out Markdown repository
+        if: steps.current.outputs.publish == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: Amaru333/bdc-test
+          token: ${{ secrets.MARKDOWN_REPO_TOKEN }}
+          path: markdown-repository
+
+      - name: Sync and publish Markdown
+        if: steps.current.outputs.publish == 'true'
+        env:
+          SOURCE_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          test -s build-output/markdown/index.md
+          mkdir -p markdown-repository/site
+          rsync -a --delete build-output/markdown/ markdown-repository/site/
+          cd markdown-repository
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- site
+          if git diff --cached --quiet; then
+            echo 'Markdown is unchanged.'
+            exit 0
+          fi
+          git commit -m "Update site Markdown from ${SOURCE_REPOSITORY}@${GITHUB_SHA}"
+          git push
