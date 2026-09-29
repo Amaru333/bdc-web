@@ -1,3 +1,4 @@
+import { trackSearchSubmit } from '../components/layout/analytics/search';
 import {
   initSearchResultsControls,
   observeSearchNoResultsSuggestions,
@@ -30,10 +31,11 @@ let pagefindModule: PagefindModule | null = null;
 let activeSearchToken = 0;
 
 /** Runtime `import()` so Vite does not try to bundle the Pagefind script. */
-const importExternalModule = new Function(
-  'specifier',
-  'return import(specifier)',
-) as (specifier: string) => Promise<PagefindModule>;
+const importExternalModule = (specifier: string) =>
+  import(
+    /* @vite-ignore */
+    specifier
+  ) as Promise<PagefindModule>;
 
 /** Loads and caches the Pagefind runtime from /pagefind/pagefind.js. */
 async function getPagefind(): Promise<PagefindModule> {
@@ -152,13 +154,18 @@ export function initSearchResults(
 
   elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
+    const query = elements.input.value.trim();
     window.clearTimeout(debounceTimer);
-    updateQueryInUrl(elements.input.value.trim());
-    void loadSearchResults(
-      elements.container,
-      elements.input.value,
-      loadPagefind,
-    );
+    updateQueryInUrl(query);
+
+    if (query) {
+      trackSearchSubmit({
+        searchTerm: query,
+        searchSurface: 'results_page',
+      });
+    }
+
+    void loadSearchResults(elements.container, query, loadPagefind);
   });
 
   elements.input.addEventListener('input', () => {

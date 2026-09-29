@@ -42,9 +42,15 @@ import { buildPayload } from '../../../../util/freshdesk/buildPayload';
 import { getSectionFieldIds } from '../../../../util/freshdesk/getFormFields';
 import type { FreshdeskField } from '../../../../util/freshdesk/types';
 import { getRecaptchaToken } from '../../../../util/recaptcha';
+import { trackFormSubmitSuccess } from '../../../layout/analytics/forms';
 import ConsentField, { CONSENT_FIELD_NAME } from '../../fields/ConsentField';
 import HoneypotField from '../../fields/HoneypotField';
-import { fieldErrors, formErrors, formStatus } from '../../util/errorMessages';
+import {
+  type FormMessages,
+  fieldErrors,
+  formErrors,
+  formMessages,
+} from '../../util/errorMessages';
 import { renderField } from '../helpers/renderField';
 
 // ---------------------------------------------------------------------------
@@ -70,6 +76,8 @@ interface DynamicFormProps {
   // Passed from the Astro page via import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY.
   // Used to obtain a token before submission — the Lambda verifies it.
   recaptchaSiteKey: string;
+  // Per-form copy for fallback, submit-error, and success states.
+  messages?: FormMessages;
   // True if getFormFields threw at build time — renders fallback UI.
   error?: boolean;
 }
@@ -83,8 +91,10 @@ export default function DynamicForm({
   formType,
   submitUrl,
   recaptchaSiteKey,
+  messages = formMessages.getHelp,
   error = false,
 }: DynamicFormProps) {
+  const analyticsFormName = formType;
   const [status, setStatus] = useState<FormStatus>('idle');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -134,10 +144,8 @@ export default function DynamicForm({
     return (
       <div className="usa-alert usa-alert--error custom-form">
         <div className="usa-alert__body">
-          <h3 className="usa-alert__heading">
-            {formStatus.unavailableHeading}
-          </h3>
-          <p className="usa-alert__text">{formStatus.unavailable}</p>
+          <h3 className="usa-alert__heading">{messages.unavailableHeading}</h3>
+          <p className="usa-alert__text">{messages.unavailableText}</p>
         </div>
       </div>
     );
@@ -152,10 +160,10 @@ export default function DynamicForm({
       // tabIndex={-1} allows focus to be programmatically moved here
       // after submission, per the UX spec accessibility requirement.
       <div ref={confirmationRef} tabIndex={-1}>
-        <output className="usa-alert usa-alert--success">
+        <output className="usa-alert usa-alert--success display-block">
           <div className="usa-alert__body">
-            <h2 className="usa-alert__heading">{formStatus.successHeading}</h2>
-            <p className="usa-alert__text">{formStatus.successText}</p>
+            <h2 className="usa-alert__heading">{messages.successHeading}</h2>
+            <p className="usa-alert__text">{messages.successText}</p>
           </div>
         </output>
 
@@ -209,6 +217,7 @@ export default function DynamicForm({
         throw new Error(`Submit failed: ${response.status}`);
       }
 
+      trackFormSubmitSuccess(analyticsFormName);
       setStatus('success');
 
       // Move focus to confirmation message per UX spec accessibility requirement.
@@ -216,7 +225,7 @@ export default function DynamicForm({
       setTimeout(() => confirmationRef.current?.focus(), 0);
     } catch {
       setStatus('error');
-      setSubmitError(formErrors.submission.general);
+      setSubmitError(messages.submitError);
     }
   };
 
@@ -235,6 +244,7 @@ export default function DynamicForm({
     <FormProvider {...methods}>
       <form
         className="usa-form usa-form--large"
+        data-analytics-form={analyticsFormName}
         onSubmit={handleSubmit(onSubmit, onError)}
         noValidate // Disable native browser validation — RHF handles it
       >

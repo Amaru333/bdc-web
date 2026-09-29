@@ -86,7 +86,7 @@ Amplify listens to this repository and deploys `apps/docs` from resulting commit
 - External lock file (committed): `apps/docs/external.lock.json`.
 - Generated external sidebar: `apps/docs/src/generated/external-sidebar.json`.
 
-Generated external page content is written under `apps/docs/src/content/docs/external/` during sync and is ignored by git via `apps/docs/.gitignore`.
+Generated external page content is written under each source's configured `output_dir` under `apps/docs/src/content/docs/` during sync and is ignored by git via `apps/docs/.gitignore`.
 
 Workflow: `.github/workflows/docs-external-sync.yml`
 

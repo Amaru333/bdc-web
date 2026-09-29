@@ -42,9 +42,15 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { buildCustomObjectPayload } from '../../../../util/freshdesk/buildCustomObjectPayload';
 import type { CustomObjectField } from '../../../../util/freshdesk/typesCustomObjects';
 import { getRecaptchaToken } from '../../../../util/recaptcha';
+import { trackFormSubmitSuccess } from '../../../layout/analytics/forms';
 import ConsentField, { CONSENT_FIELD_NAME } from '../../fields/ConsentField';
 import HoneypotField from '../../fields/HoneypotField';
-import { fieldErrors, formErrors, formStatus } from '../../util/errorMessages';
+import {
+  type FormMessages,
+  fieldErrors,
+  formErrors,
+  formMessages,
+} from '../../util/errorMessages';
 import { renderCustomObjectField } from '../helpers/renderCustomObjectField';
 
 // ---------------------------------------------------------------------------
@@ -58,6 +64,10 @@ interface DynamicCustomObjectFormProps {
   // PRIMARY, RELATIONSHIP, and hidden fields are excluded.
   // DROPDOWN and MULTI_SELECT fields include choices from the schema response.
   fields: CustomObjectField[];
+  // The internal name of the schema PRIMARY field. This is preserved from the
+  // schema fetch so record creation uses the actual identifier key required by
+  // Freshdesk instead of assuming it is always `name`.
+  primaryFieldName?: string;
   // The numeric ID of the custom object schema.
   // Passed to the Lambda proxy so it can construct the correct endpoint:
   // POST /api/v2/custom_objects/schemas/{schemaId}/records/
@@ -71,6 +81,8 @@ interface DynamicCustomObjectFormProps {
   // The reCAPTCHA v3 site key for the current environment.
   // Passed from the Astro page via import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY.
   recaptchaSiteKey: string;
+  // Per-form copy for fallback, submit-error, and success states.
+  messages?: FormMessages;
   // True if getCustomObjectSchema threw at build time — renders fallback UI.
   error?: boolean;
 }
@@ -81,12 +93,15 @@ interface DynamicCustomObjectFormProps {
 
 export default function DynamicCustomObjectForm({
   fields,
+  primaryFieldName = 'name',
   schemaId,
   idPrefix = 'SUB',
   submitUrl,
   recaptchaSiteKey,
+  messages = formMessages.contactBdc,
   error = false,
 }: DynamicCustomObjectFormProps) {
+  const analyticsFormName = idPrefix.toLowerCase();
   const [status, setStatus] = useState<FormStatus>('idle');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -116,10 +131,8 @@ export default function DynamicCustomObjectForm({
     return (
       <div className="usa-alert usa-alert--error" role="alert">
         <div className="usa-alert__body">
-          <h3 className="usa-alert__heading">
-            {formStatus.unavailableHeading}
-          </h3>
-          <p className="usa-alert__text">{formStatus.unavailable}</p>
+          <h3 className="usa-alert__heading">{messages.unavailableHeading}</h3>
+          <p className="usa-alert__text">{messages.unavailableText}</p>
         </div>
       </div>
     );
@@ -134,19 +147,14 @@ export default function DynamicCustomObjectForm({
       // tabIndex={-1} allows focus to be programmatically moved here
       // after submission, per the UX spec accessibility requirement.
       <div ref={confirmationRef} tabIndex={-1}>
-        <output className="usa-alert usa-alert--success">
+        <output className="usa-alert usa-alert--success display-block">
           <div className="usa-alert__body">
-            <h2 className="usa-alert__heading">{formStatus.successHeading}</h2>
-            <p className="usa-alert__text">
-              {/* TODO: Per-form follow-up copy — confirm with content team */}
-              Check your inbox for a confirmation email with a copy of your
-              submission.
-            </p>
+            <h2 className="usa-alert__heading">{messages.successHeading}</h2>
+            <p className="usa-alert__text">{messages.successText}</p>
           </div>
         </output>
 
         <div className="margin-top-3">
-          {/* TODO: Per-form button labels and destinations — confirm with content team */}
           <button
             type="button"
             className="usa-button usa-button--outline margin-right-2"
@@ -180,7 +188,7 @@ export default function DynamicCustomObjectForm({
       const recaptchaToken = await getRecaptchaToken(recaptchaSiteKey);
 
       const payload = {
-        ...buildCustomObjectPayload(values, fields, 'name', idPrefix),
+        ...buildCustomObjectPayload(values, fields, primaryFieldName, idPrefix),
         recaptcha_token: recaptchaToken,
         // Pass schemaId so the Lambda knows which endpoint to hit.
         // The Lambda constructs: POST /api/v2/custom_objects/schemas/{schemaId}/records/
@@ -197,6 +205,7 @@ export default function DynamicCustomObjectForm({
         throw new Error(`Submit failed: ${response.status}`);
       }
 
+      trackFormSubmitSuccess(analyticsFormName);
       setStatus('success');
 
       // Move focus to confirmation message per UX spec accessibility requirement.
@@ -204,7 +213,7 @@ export default function DynamicCustomObjectForm({
       setTimeout(() => confirmationRef.current?.focus(), 0);
     } catch {
       setStatus('error');
-      setSubmitError(formErrors.submission.general);
+      setSubmitError(messages.submitError);
     }
   };
 
@@ -223,6 +232,7 @@ export default function DynamicCustomObjectForm({
     <FormProvider {...methods}>
       <form
         className="usa-form usa-form--large"
+        data-analytics-form={analyticsFormName}
         onSubmit={handleSubmit(onSubmit, onError)}
         noValidate // Disable native browser validation — RHF handles it
       >

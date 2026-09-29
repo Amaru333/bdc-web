@@ -1,9 +1,11 @@
 ---
 import { getCustomObjectSchema } from '../../../../util/freshdesk/getCustomObjectSchema';
 import type { CustomObjectField } from '../../../../util/freshdesk/typesCustomObjects';
+import { formMessages } from '../../util/errorMessages';
 import DynamicCustomObjectForm from '../form-types/DynamicCustomObjectForm.tsx';
 
 let fields: CustomObjectField[] = [];
+let primaryFieldName = 'name';
 let formError = false;
 const hasFreshdeskAuth =
   Boolean(import.meta.env.FRESHDESK_DOMAIN) &&
@@ -20,7 +22,9 @@ if (!hasFreshdeskAuth || !schemaIdRaw || Number.isNaN(schemaId)) {
   formError = true;
 } else {
   try {
-    fields = await getCustomObjectSchema(schemaId);
+    const schema = await getCustomObjectSchema(schemaId);
+    fields = schema.fields;
+    primaryFieldName = schema.primaryFieldName;
   } catch (e) {
     console.error('Failed to fetch Contact BDC form config:', e);
     formError = true;
@@ -30,8 +34,10 @@ if (!hasFreshdeskAuth || !schemaIdRaw || Number.isNaN(schemaId)) {
 
 <DynamicCustomObjectForm
   fields={fields}
+  primaryFieldName={primaryFieldName}
   schemaId={schemaId}
   idPrefix="CONTACT"
+  messages={formMessages.contactBdc}
   submitUrl={import.meta.env.FRESHDESK_PROXY_URL}
   recaptchaSiteKey={import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY}
   error={formError}

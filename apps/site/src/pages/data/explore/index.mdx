@@ -9,6 +9,8 @@ import Link from '@bdc/ui-astro/link/Link.astro'
 import Card from '@bdc/ui-astro/card/Card.astro';
 import Icon from '@bdc/ui-astro/icon/Icon.astro';
 import IconBadge from '@bdc/ui-astro/icon/IconBadge.astro';
+import CheckMyAccess from '@components/check-my-access/CheckMyAccess.astro';
+import InlineAlert from '@bdc/ui-astro/alert/InlineAlert.astro';
 import Notice from '@components/Notice.astro';
 
 <Hero
@@ -19,17 +21,17 @@ import Notice from '@components/Notice.astro';
   <div slot="visual" class="grid-container padding-x-0">
     <div class="grid-row grid-gap-md">
       <div class="grid-col-4 text-center">
-        <IconBadge icon="database" tone="secondary" size={8} iconSize={5} class="margin-bottom-2" />
+        <IconBadge icon="database" tone="secondary" variant="feature" class="margin-bottom-2" />
         <div class="text-primary-dark font-heading-2xl text-bold margin-bottom-1">500+</div>
         <div class="text-primary-dark text-uppercase text-bold text-ls-2 font-sans-2xs margin-bottom-1">Hosted Datasets</div>
       </div>
       <div class="grid-col-4 text-center">
-        <IconBadge icon="layers" tone="secondary" size={8} iconSize={5} class="margin-bottom-2" />
+        <IconBadge icon="layers" tone="secondary" variant="feature" class="margin-bottom-2" />
         <div class="text-primary-dark font-heading-2xl text-bold margin-bottom-1">39%</div>
         <div class="text-primary-dark text-uppercase text-bold text-ls-2 font-sans-2xs margin-bottom-1">Multi-modal datasets</div>
       </div>
       <div class="grid-col-4 text-center">
-        <IconBadge icon="network" tone="secondary" size={8} iconSize={5} class="margin-bottom-2" />
+        <IconBadge icon="network" tone="secondary" variant="feature" class="margin-bottom-2" />
         <div class="text-primary-dark font-heading-2xl text-bold margin-bottom-1">26</div>
         <div class="text-primary-dark text-uppercase text-bold text-ls-2 font-sans-2xs margin-bottom-1">Distinct data types</div>
       </div>
@@ -101,12 +103,13 @@ Researchers who want to use **controlled-access datasets** must have an approved
 
 Use the button below to sign in and verify your current data access approvals. 
 
-<Notice
-  icon="lock_open"
-  tone="neutral"
->
-  <Link to="https://gen3.biodatacatalyst.nhlbi.nih.gov/user/oauth2/authorize?idp=ras&client_id=xMhuXjGdk9zpzdJjufEinh3nKzOUKOTFZcwzU5xT&response_type=id_token+token&scope=openid+user&nonce=2bfe151af238d21f48d8a8bf8bbec408838c8dc0ace6b4c5621ac9dfa157798b&redirect_uri=https://biodatacatalyst.nhlbi.nih.gov/use-bdc/explore-data/">Check My Access</Link>
-</Notice>
+<h3 id="check-my-access" class="usa-sr-only">Check My Access</h3>
+
+<InlineAlert variant="warning" heading="Temporary Notice">
+  Check My Access may not work correctly while this feature is being updated.
+</InlineAlert>
+
+    <CheckMyAccess />
 
     </InPageNav>
   </div>
