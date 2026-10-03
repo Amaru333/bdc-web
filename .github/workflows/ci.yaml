@@ -51,6 +51,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         app: [site]
+        include:
+          - os: ubuntu-latest
+            app: docs
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -105,7 +108,7 @@ jobs:
     needs: [build, a11y]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     concurrency:
-      group: publish-site-markdown
+      group: publish-bdc-markdown
       cancel-in-progress: false
     permissions:
       contents: read
@@ -140,7 +143,13 @@ jobs:
         if: steps.current.outputs.publish == 'true'
         with:
           name: site-dist
-          path: build-output
+          path: build-output/site
+
+      - uses: actions/download-artifact@v4
+        if: steps.current.outputs.publish == 'true'
+        with:
+          name: docs-dist
+          path: build-output/docs
 
       - name: Check out Markdown repository
         if: steps.current.outputs.publish == 'true'
@@ -156,16 +165,18 @@ jobs:
           SOURCE_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          test -s build-output/markdown/index.md
-          mkdir -p markdown-repository/site
-          rsync -a --delete build-output/markdown/ markdown-repository/site/
+          test -s build-output/site/markdown/index.md
+          test -s build-output/docs/markdown/index.md
+          mkdir -p markdown-repository/site markdown-repository/docs
+          rsync -a --delete build-output/site/markdown/ markdown-repository/site/
+          rsync -a --delete build-output/docs/markdown/ markdown-repository/docs/
           cd markdown-repository
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- site
+          git add -- site docs
           if git diff --cached --quiet; then
             echo 'Markdown is unchanged.'
             exit 0
           fi
-          git commit -m "Update site Markdown from ${SOURCE_REPOSITORY}@${GITHUB_SHA}"
+          git commit -m "Update site and docs Markdown from ${SOURCE_REPOSITORY}@${GITHUB_SHA}"
           git push
