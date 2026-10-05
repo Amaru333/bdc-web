@@ -155,7 +155,7 @@ jobs:
         if: steps.current.outputs.publish == 'true'
         uses: actions/checkout@v4
         with:
-          repository: Amaru333/bdc-test
+          repository: ${{ secrets.MARKDOWN_REPO_NAME }}
           token: ${{ secrets.MARKDOWN_REPO_TOKEN }}
           path: markdown-repository
 
