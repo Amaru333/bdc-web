@@ -13,6 +13,7 @@ import {
 import { tmpdir } from 'node:os';
 import { basename, dirname, extname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { transformEmojiShortcodes } from './lib/gitbook-emoji-shortcodes.mjs';
 import { rewriteMarkdownLinkDestinations } from './lib/markdown-link-rewrite.mjs';
 
 // Build-time GitBook sync pipeline:
@@ -194,6 +195,7 @@ function transformMarkdown(input, fileRelPath) {
   content = transformFileBlocks(content, fileRelPath);
   content = transformIncludeBlocks(content);
   content = transformEmbedBlocks(content);
+  content = transformEmojiShortcodes(content);
   content = rewriteGitbookAssetPaths(content);
   content = rewriteInternalMarkdownLinks(content, fileRelPath);
   content = ensureFrontmatter(content, fileRelPath);
