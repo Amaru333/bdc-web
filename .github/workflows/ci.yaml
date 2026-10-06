@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
+    branches: [main, prod]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -134,7 +134,7 @@ jobs:
         id: current
         working-directory: source
         run: |
-          latest=$(git ls-remote origin refs/heads/prod | cut -f1)
+          latest=$(git ls-remote origin "$GITHUB_REF" | cut -f1)
           if [ "$latest" = "$GITHUB_SHA" ]; then
             echo 'publish=true' >> "$GITHUB_OUTPUT"
           fi
