@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
+import { load } from 'js-yaml';
 import { convertPage } from './convert.mjs';
 import markdownExport from './index.mjs';
 
@@ -133,7 +134,7 @@ test('build hook writes nested files, removes stale output and consumes temporar
     });
     assert.match(
       await readFile(join(root, 'markdown', 'about', 'index.md'), 'utf8'),
-      /Source: https:\/\/example.org\/about\//,
+      /url: https:\/\/example.org\/about\//,
     );
     await assert.rejects(readFile(join(root, '__markdown-collections.json')), {
       code: 'ENOENT',
@@ -143,5 +144,18 @@ test('build hook writes nested files, removes stale output and consumes temporar
     });
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('writes YAML title and URL with safe escaping and a title fallback', () => {
+  for (const [html, title] of [
+    [page('<h1>A: "quoted" title #1</h1><p>Body</p>'), 'A: "quoted" title #1'],
+    [page('<p>Body</p>'), 'Example'],
+  ]) {
+    const result = convertPage(html, { url });
+    const frontmatter = result.match(/^---\n([\s\S]*?)\n---\n/);
+    assert.ok(frontmatter);
+    assert.deepEqual(load(frontmatter[1]), { title, url });
+    assert.doesNotMatch(result.slice(frontmatter[0].length), /^Source:/m);
   }
 });
