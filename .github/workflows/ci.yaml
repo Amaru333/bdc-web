@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, prod]
+    branches: [prod]
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -117,11 +117,12 @@ jobs:
         id: credentials
         env:
           TOKEN: ${{ secrets.MARKDOWN_REPO_TOKEN }}
+          REPO_NAME: ${{ secrets.MARKDOWN_REPO_NAME }}
         run: |
-          if [ -n "$TOKEN" ]; then
+          if [ -n "$TOKEN" ] && [ -n "$REPO_NAME" ]; then
             echo 'configured=true' >> "$GITHUB_OUTPUT"
           else
-            echo '::notice::Set MARKDOWN_REPO_TOKEN to enable Markdown publication.'
+            echo '::notice::Set both MARKDOWN_REPO_TOKEN and MARKDOWN_REPO_NAME to enable Markdown publication.'
           fi
 
       - uses: actions/checkout@v4
