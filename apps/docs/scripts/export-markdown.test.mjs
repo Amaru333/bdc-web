@@ -81,3 +81,44 @@ it('leaves originals unchanged, removes obsolete output and is repeatable', asyn
     await rm(root, { recursive: true, force: true });
   }
 });
+
+it('flattens nested indexes, preserves children and assets, and avoids collisions', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'docs-path-test-'));
+  const source = join(root, 'source');
+  const output = join(root, 'output');
+  try {
+    await mkdir(join(source, 'guide'), { recursive: true });
+    await mkdir(join(source, 'support'));
+    await writeFile(join(source, 'index.md'), '# Home');
+    await writeFile(join(source, 'guide', 'index.md'), '# Guide');
+    await writeFile(join(source, 'guide', 'child.md'), '# Child');
+    await writeFile(join(source, 'guide', 'asset.txt'), 'asset');
+    await writeFile(join(source, 'support.md'), '# Existing support');
+    await writeFile(join(source, 'support', 'index.md'), '# Other support');
+    await exportMarkdown(source, output);
+    const guide = await readFile(join(output, 'guide.md'), 'utf8');
+    expect(metadata(guide).url).toBe(
+      'https://bdcatalyst.gitbook.io/biodata-catalyst-documentation/guide/',
+    );
+    expect(await readFile(join(output, 'guide', 'child.md'), 'utf8')).toContain(
+      '# Child',
+    );
+    expect(await readFile(join(output, 'guide', 'asset.txt'), 'utf8')).toBe(
+      'asset',
+    );
+    expect(await readFile(join(output, 'support.md'), 'utf8')).toContain(
+      '# Existing support',
+    );
+    expect(
+      await readFile(join(output, 'support', 'index.md'), 'utf8'),
+    ).toContain('# Other support');
+    await expect(
+      readFile(join(output, 'guide', 'index.md')),
+    ).rejects.toHaveProperty('code', 'ENOENT');
+    expect(await readFile(join(source, 'guide', 'index.md'), 'utf8')).toBe(
+      '# Guide',
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

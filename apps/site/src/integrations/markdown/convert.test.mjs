@@ -133,8 +133,12 @@ test('build hook writes nested files, removes stale output and consumes temporar
       logger: { info() {} },
     });
     assert.match(
-      await readFile(join(root, 'markdown', 'about', 'index.md'), 'utf8'),
+      await readFile(join(root, 'markdown', 'about.md'), 'utf8'),
       /url: https:\/\/example.org\/about\//,
+    );
+    await assert.rejects(
+      readFile(join(root, 'markdown', 'about', 'index.md')),
+      { code: 'ENOENT' },
     );
     await assert.rejects(readFile(join(root, '__markdown-collections.json')), {
       code: 'ENOENT',

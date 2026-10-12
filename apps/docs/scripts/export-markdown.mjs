@@ -1,4 +1,12 @@
-import { access, cp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import {
+  access,
+  cp,
+  mkdir,
+  readdir,
+  readFile,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dump, load } from 'js-yaml';
@@ -43,29 +51,45 @@ export function addSource(markdown, path) {
   return `---${newline}${yaml.replace(/\n/g, newline)}---${newline}${body}`;
 }
 
-async function markdownFiles(root) {
+async function exportFiles(root) {
   const files = [];
   for (const entry of await readdir(root, { withFileTypes: true })) {
     const path = join(root, entry.name);
-    if (entry.isDirectory()) files.push(...(await markdownFiles(path)));
-    else if (entry.isFile() && /\.mdx?$/.test(entry.name)) files.push(path);
+    if (entry.isDirectory()) files.push(...(await exportFiles(path)));
+    else if (entry.isFile()) files.push(path);
   }
   return files.sort();
 }
 
 export async function exportMarkdown(source, output) {
   await access(join(source, 'index.md'));
+  const files = await exportFiles(source);
+  const originalPaths = new Set(
+    files.map((file) => relative(source, file).split(sep).join('/')),
+  );
   const pages = await Promise.all(
-    (await markdownFiles(source)).map(async (file) => {
-      const path = relative(source, file);
-      return { path, content: addSource(await readFile(file, 'utf8'), path) };
+    files.map(async (file) => {
+      const path = relative(source, file).split(sep).join('/');
+      const flattened = path.replace(/\/index(\.mdx?)$/, '$1');
+      // Preserve both documents if a sibling already owns the flattened name.
+      const destination = originalPaths.has(flattened) ? path : flattened;
+      return {
+        file,
+        destination,
+        content: /\.mdx?$/.test(path)
+          ? addSource(await readFile(file, 'utf8'), path)
+          : null,
+      };
     }),
   );
   await rm(output, { recursive: true, force: true });
-  await cp(source, output, { recursive: true });
-  for (const page of pages)
-    await writeFile(join(output, page.path), page.content);
-  return pages.length;
+  for (const page of pages) {
+    const destination = join(output, page.destination);
+    await mkdir(dirname(destination), { recursive: true });
+    if (page.content === null) await cp(page.file, destination);
+    else await writeFile(destination, page.content);
+  }
+  return pages.filter((page) => page.content !== null).length;
 }
 
 if (

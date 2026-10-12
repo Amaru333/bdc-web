@@ -44,7 +44,16 @@ export default function markdownExport() {
         const output = join(root, 'markdown');
         await rm(output, { recursive: true, force: true });
         let count = 0;
-        for (const file of await htmlFiles(root)) {
+        const files = await htmlFiles(root);
+        const originalPaths = new Set(
+          files.map((file) =>
+            relative(root, file)
+              .split(sep)
+              .join('/')
+              .replace(/\.html$/, '.md'),
+          ),
+        );
+        for (const file of files) {
           const path = relative(root, file).split(sep).join('/');
           const route = `/${path.replace(/index\.html$/, '').replace(/\.html$/, '')}`;
           const markdown = convertPage(await readFile(file, 'utf8'), {
@@ -53,7 +62,12 @@ export default function markdownExport() {
           });
           // Redirect documents have no page content.
           if (markdown === null) continue;
-          const destination = join(output, path.replace(/\.html$/, '.md'));
+          const original = path.replace(/\.html$/, '.md');
+          const flattened = original.replace(/\/index\.md$/, '.md');
+          const destination = join(
+            output,
+            originalPaths.has(flattened) ? original : flattened,
+          );
           await mkdir(dirname(destination), { recursive: true });
           await writeFile(destination, markdown);
           count++;
