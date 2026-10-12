@@ -12,7 +12,7 @@
     "sync:content": "npm run sync:gitbook && npm run sync:external",
     "build": "npm run sync:content && astro build && npm run export:markdown",
     "preview": "astro preview",
-    "export:markdown": "node -e \"const fs = require('node:fs'); fs.accessSync('src/content/docs/index.md'); fs.rmSync('dist/markdown', { recursive: true, force: true }); fs.cpSync('src/content/docs', 'dist/markdown', { recursive: true });\""
+    "export:markdown": "node ./scripts/export-markdown.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.2.3",

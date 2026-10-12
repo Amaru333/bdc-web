@@ -1,3 +1,4 @@
+import { dump } from 'js-yaml';
 import { JSDOM } from 'jsdom';
 import TurndownService from 'turndown';
 import { strikethrough } from 'turndown-plugin-gfm';
@@ -146,9 +147,15 @@ export function convertPage(html, { url, collections = {} }) {
     });
     converter.addRule('lineBreak', { filter: 'br', replacement: () => '  \n' });
     const body = converter.turndown(main);
-    const title = converter.escape(document.title || 'Untitled');
-    const heading = main.querySelector('h1') ? '' : `# ${title}\n\n`;
-    return `${heading}Source: ${url}\n\n${body}\n`;
+    const title =
+      main.querySelector('h1')?.textContent.trim() ||
+      document.title ||
+      'Untitled';
+    const heading = main.querySelector('h1')
+      ? ''
+      : `# ${converter.escape(title)}\n\n`;
+    const metadata = dump({ title, url }, { lineWidth: -1, noRefs: true });
+    return `---\n${metadata}---\n\n${heading}${body}\n`;
   } finally {
     dom.window.close();
   }
