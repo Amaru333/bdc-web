@@ -87,6 +87,11 @@ export function convertPage(html, { url, collections = {} }) {
       if (document.querySelector('meta[http-equiv="refresh" i]')) return null;
       throw new Error(`Missing main content: ${url}`);
     }
+    const tags = [];
+    for (const element of main.querySelectorAll('[data-markdown-tags]')) {
+      tags.push(...JSON.parse(element.getAttribute('data-markdown-tags')));
+      element.remove();
+    }
     expandCollections(document, main, collections);
     main
       .querySelectorAll(
@@ -154,7 +159,10 @@ export function convertPage(html, { url, collections = {} }) {
     const heading = main.querySelector('h1')
       ? ''
       : `# ${converter.escape(title)}\n\n`;
-    const metadata = dump({ title, url }, { lineWidth: -1, noRefs: true });
+    const metadata = dump(
+      { title, url, ...(tags.length ? { tags: [...new Set(tags)] } : {}) },
+      { lineWidth: -1, noRefs: true },
+    );
     return `---\n${metadata}---\n\n${heading}${body}\n`;
   } finally {
     dom.window.close();

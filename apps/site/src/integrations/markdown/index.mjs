@@ -44,7 +44,9 @@ export default function markdownExport() {
         const output = join(root, 'markdown');
         await rm(output, { recursive: true, force: true });
         let count = 0;
-        const files = await htmlFiles(root);
+        const files = (await htmlFiles(root)).filter(
+          (file) => relative(root, file).split(sep)[0] !== 'tagged',
+        );
         const originalPaths = new Set(
           files.map((file) =>
             relative(root, file)
