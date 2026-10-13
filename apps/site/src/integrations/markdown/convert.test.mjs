@@ -144,6 +144,17 @@ test('build hook writes nested files, removes stale output and consumes temporar
     );
     await writeFile(join(root, 'markdown', 'stale.md'), 'stale');
     await writeFile(join(root, 'index.html'), page('<h1>Home</h1>'));
+    await writeFile(join(root, '404.html'), page('<h1>Not found</h1>'));
+    await writeFile(join(root, 'markdown', '404.md'), 'old error page');
+    await writeFile(
+      join(root, '404-help.html'),
+      page('<h1>Error guidance</h1>'),
+    );
+    await mkdir(join(root, 'tagged-help'));
+    await writeFile(
+      join(root, 'tagged-help', 'index.html'),
+      page('<h1>Tag help</h1>'),
+    );
     await writeFile(join(root, 'about', 'index.html'), page('<h1>About</h1>'));
     await writeFile(join(root, '__markdown-collections.json'), '{}');
     const integration = markdownExport();
@@ -179,6 +190,18 @@ test('build hook writes nested files, removes stale output and consumes temporar
     await assert.rejects(readFile(join(root, 'markdown', 'stale.md')), {
       code: 'ENOENT',
     });
+    await assert.rejects(readFile(join(root, 'markdown', '404.md')), {
+      code: 'ENOENT',
+    });
+    assert.match(await readFile(join(root, '404.html'), 'utf8'), /Not found/);
+    assert.match(
+      await readFile(join(root, 'markdown', '404-help.md'), 'utf8'),
+      /Error guidance/,
+    );
+    assert.match(
+      await readFile(join(root, 'markdown', 'tagged-help.md'), 'utf8'),
+      /Tag help/,
+    );
     await assert.rejects(
       readFile(join(root, 'markdown', 'tagged', 'BDC User Support.md')),
       {

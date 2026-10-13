@@ -10,6 +10,7 @@ import {
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dump, load } from 'js-yaml';
+import { isMarkdownExportIgnored } from '../../../markdown-export.config.mjs';
 
 const gitbookUrl =
   'https://bdcatalyst.gitbook.io/biodata-catalyst-documentation/';
@@ -63,7 +64,13 @@ async function exportFiles(root) {
 
 export async function exportMarkdown(source, output) {
   await access(join(source, 'index.md'));
-  const files = await exportFiles(source);
+  const files = (await exportFiles(source)).filter(
+    (file) =>
+      !isMarkdownExportIgnored(
+        'docs',
+        relative(source, file).split(sep).join('/'),
+      ),
+  );
   const originalPaths = new Set(
     files.map((file) => relative(source, file).split(sep).join('/')),
   );

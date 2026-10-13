@@ -64,10 +64,26 @@ it('leaves originals unchanged, removes obsolete output and is repeatable', asyn
     await mkdir(source);
     await mkdir(output);
     await writeFile(join(source, 'index.md'), '# Home');
+    await writeFile(join(source, '404.md'), '# Not found');
+    await writeFile(join(output, '404.md'), 'old error page');
+    await mkdir(join(source, '404'));
+    await writeFile(join(source, '404', 'index.mdx'), '# Nested error page');
     await writeFile(join(output, 'stale.md'), 'obsolete');
     expect(await exportMarkdown(source, output)).toBe(1);
     const first = await readFile(join(output, 'index.md'), 'utf8');
     expect(await readFile(join(source, 'index.md'), 'utf8')).toBe('# Home');
+    expect(await readFile(join(source, '404.md'), 'utf8')).toBe('# Not found');
+    await expect(readFile(join(output, '404.md'))).rejects.toHaveProperty(
+      'code',
+      'ENOENT',
+    );
+    await expect(readFile(join(output, '404.mdx'))).rejects.toHaveProperty(
+      'code',
+      'ENOENT',
+    );
+    await expect(
+      readFile(join(output, '404', 'index.mdx')),
+    ).rejects.toHaveProperty('code', 'ENOENT');
     await expect(readFile(join(output, 'stale.md'))).rejects.toHaveProperty(
       'code',
       'ENOENT',

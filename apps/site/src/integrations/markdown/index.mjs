@@ -1,6 +1,7 @@
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isMarkdownExportIgnored } from '../../../../../markdown-export.config.mjs';
 import { convertPage } from './convert.mjs';
 
 const collectionFile = '__markdown-collections.json';
@@ -45,7 +46,11 @@ export default function markdownExport() {
         await rm(output, { recursive: true, force: true });
         let count = 0;
         const files = (await htmlFiles(root)).filter(
-          (file) => relative(root, file).split(sep)[0] !== 'tagged',
+          (file) =>
+            !isMarkdownExportIgnored(
+              'site',
+              relative(root, file).split(sep).join('/'),
+            ),
         );
         const originalPaths = new Set(
           files.map((file) =>
