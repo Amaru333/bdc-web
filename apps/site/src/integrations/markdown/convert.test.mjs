@@ -12,6 +12,28 @@ const url = 'https://example.org/about/';
 const page = (content) =>
   `<html><head><title>Example</title></head><body><header>Navigation</header><main id="main-content">${content}</main><footer>Updated today</footer></body></html>`;
 
+test('moves page tags into YAML without collecting tags from related articles', () => {
+  const result = convertPage(
+    page(`<h1>Reception Desk</h1>
+      <div data-markdown-tags='["BDC User Support", "Topic: data", "BDC User Support"]'>
+        <a href="/tagged/BDC%20User%20Support">BDC User Support</a>
+      </div>
+      <p>Event details.</p>
+      <aside><a href="/tagged/Other">Related article tag</a></aside>`),
+    { url },
+  );
+  const frontmatter = result.match(/^---\n([\s\S]*?)\n---\n/);
+  assert.deepEqual(load(frontmatter[1]), {
+    title: 'Reception Desk',
+    url,
+    tags: ['BDC User Support', 'Topic: data'],
+  });
+  const body = result.slice(frontmatter[0].length);
+  assert.doesNotMatch(body, /BDC User Support/);
+  assert.match(body, /Event details/);
+  assert.match(body, /Related article tag/);
+});
+
 test('exports semantic content, collapsed answers and absolute links without UI or HTML', () => {
   const html =
     page(`<h1>Title</h1><aside class="usa-in-page-nav">On this page</aside>
@@ -109,8 +131,30 @@ test('build hook writes nested files, removes stale output and consumes temporar
   try {
     await mkdir(join(root, 'about'));
     await mkdir(join(root, 'markdown'));
+    await mkdir(join(root, 'tagged', 'BDC User Support'), { recursive: true });
+    await mkdir(join(root, 'markdown', 'tagged'), { recursive: true });
+    await writeFile(
+      join(root, 'markdown', 'tagged', 'old.md'),
+      'old tag listing',
+    );
+    const tagListing = page('<h1>Tagged BDC User Support</h1>');
+    await writeFile(
+      join(root, 'tagged', 'BDC User Support', 'index.html'),
+      tagListing,
+    );
     await writeFile(join(root, 'markdown', 'stale.md'), 'stale');
     await writeFile(join(root, 'index.html'), page('<h1>Home</h1>'));
+    await writeFile(join(root, '404.html'), page('<h1>Not found</h1>'));
+    await writeFile(join(root, 'markdown', '404.md'), 'old error page');
+    await writeFile(
+      join(root, '404-help.html'),
+      page('<h1>Error guidance</h1>'),
+    );
+    await mkdir(join(root, 'tagged-help'));
+    await writeFile(
+      join(root, 'tagged-help', 'index.html'),
+      page('<h1>Tag help</h1>'),
+    );
     await writeFile(join(root, 'about', 'index.html'), page('<h1>About</h1>'));
     await writeFile(join(root, '__markdown-collections.json'), '{}');
     const integration = markdownExport();
@@ -146,6 +190,34 @@ test('build hook writes nested files, removes stale output and consumes temporar
     await assert.rejects(readFile(join(root, 'markdown', 'stale.md')), {
       code: 'ENOENT',
     });
+    await assert.rejects(readFile(join(root, 'markdown', '404.md')), {
+      code: 'ENOENT',
+    });
+    assert.match(await readFile(join(root, '404.html'), 'utf8'), /Not found/);
+    assert.match(
+      await readFile(join(root, 'markdown', '404-help.md'), 'utf8'),
+      /Error guidance/,
+    );
+    assert.match(
+      await readFile(join(root, 'markdown', 'tagged-help.md'), 'utf8'),
+      /Tag help/,
+    );
+    await assert.rejects(
+      readFile(join(root, 'markdown', 'tagged', 'BDC User Support.md')),
+      {
+        code: 'ENOENT',
+      },
+    );
+    await assert.rejects(readFile(join(root, 'markdown', 'tagged', 'old.md')), {
+      code: 'ENOENT',
+    });
+    assert.equal(
+      await readFile(
+        join(root, 'tagged', 'BDC User Support', 'index.html'),
+        'utf8',
+      ),
+      tagListing,
+    );
   } finally {
     await rm(root, { recursive: true, force: true });
   }
