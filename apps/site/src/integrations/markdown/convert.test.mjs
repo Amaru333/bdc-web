@@ -12,6 +12,29 @@ const url = 'https://example.org/about/';
 const page = (content) =>
   `<html><head><title>Example</title></head><body><header>Navigation</header><main id="main-content">${content}</main><footer>Updated today</footer></body></html>`;
 
+test('exports event and publication dates from page headers as YYYY-MM-DD', () => {
+  for (const headerClass of ['event__header', 'article__header']) {
+    const result = convertPage(
+      page(`<aside><time datetime="2026-01-01T00:00:00.000Z">Related date</time></aside>
+        <header class="${headerClass}"><h1>Title</h1>
+          <time datetime="2025-06-23T00:00:00.000Z">June 23, 2025</time>
+        </header><p>Content</p>`),
+      { url },
+    );
+    const frontmatter = result.match(/^---\n([\s\S]*?)\n---\n/);
+    assert.equal(load(frontmatter[1]).date, '2025-06-23');
+    assert.match(result.slice(frontmatter[0].length), /June 23, 2025/);
+  }
+  const listing = convertPage(
+    page('<h1>Events</h1><time datetime="2025-06-23">Listed event date</time>'),
+    { url },
+  );
+  assert.equal(
+    load(listing.match(/^---\n([\s\S]*?)\n---\n/)[1]).date,
+    undefined,
+  );
+});
+
 test('moves page tags into YAML without collecting tags from related articles', () => {
   const result = convertPage(
     page(`<h1>Reception Desk</h1>
