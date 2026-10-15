@@ -87,6 +87,13 @@ export function convertPage(html, { url, collections = {} }) {
       if (document.querySelector('meta[http-equiv="refresh" i]')) return null;
       throw new Error(`Missing main content: ${url}`);
     }
+    // Read the page's event/publication date, not dates in related-content lists.
+    const date = main
+      .querySelector(
+        '.event__header time[datetime], .article__header time[datetime]',
+      )
+      ?.getAttribute('datetime')
+      ?.slice(0, 10);
     const tags = [];
     for (const element of main.querySelectorAll('[data-markdown-tags]')) {
       tags.push(...JSON.parse(element.getAttribute('data-markdown-tags')));
@@ -160,7 +167,12 @@ export function convertPage(html, { url, collections = {} }) {
       ? ''
       : `# ${converter.escape(title)}\n\n`;
     const metadata = dump(
-      { title, url, ...(tags.length ? { tags: [...new Set(tags)] } : {}) },
+      {
+        title,
+        url,
+        ...(date ? { date } : {}),
+        ...(tags.length ? { tags: [...new Set(tags)] } : {}),
+      },
       { lineWidth: -1, noRefs: true },
     );
     return `---\n${metadata}---\n\n${heading}${body}\n`;
